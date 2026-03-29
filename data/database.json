@@ -1,0 +1,830 @@
+{
+  "students": [
+    {
+      "id": "df4012b0-bfea-4657-b491-db014d4a6004",
+      "name": "朱子墨",
+      "groupId": "1",
+      "score": 3,
+      "weeklyScore": 3,
+      "createdAt": "2026-03-28T07:52:53.017Z"
+    },
+    {
+      "id": "b387e5ec-072b-4ac5-81d6-07052ad90175",
+      "name": "刘家齐",
+      "groupId": "1",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.020Z"
+    },
+    {
+      "id": "8d55d009-3c34-4ec2-94a4-4114850b94b7",
+      "name": "黎敏中",
+      "groupId": "1",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.022Z"
+    },
+    {
+      "id": "a1347b99-1fd9-4721-8efa-c66243527ce3",
+      "name": "刘祖恩",
+      "groupId": "1",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.024Z"
+    },
+    {
+      "id": "bd75496e-dfcb-493f-b8b6-8fcadc6f546a",
+      "name": "周玥希",
+      "groupId": "1",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.026Z"
+    },
+    {
+      "id": "aba400d2-74ae-45d8-a0f0-3f0218ed2580",
+      "name": "王英哲",
+      "groupId": "1",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.027Z"
+    },
+    {
+      "id": "7c918cfa-9872-498d-9eaa-2b0e18c2b923",
+      "name": "吴书帆",
+      "groupId": "2",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.028Z"
+    },
+    {
+      "id": "b4797227-3193-47d5-a6f9-23842e6d05ee",
+      "name": "况寺琦",
+      "groupId": "2",
+      "score": 1,
+      "weeklyScore": 1,
+      "createdAt": "2026-03-28T07:52:53.030Z"
+    },
+    {
+      "id": "07b0bf60-c2b8-4d90-871d-7fd621d93c95",
+      "name": "向梓轩",
+      "groupId": "2",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.032Z"
+    },
+    {
+      "id": "670695c4-0d49-48da-a14c-78850a5f1fd1",
+      "name": "付泽宜",
+      "groupId": "2",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.033Z"
+    },
+    {
+      "id": "e653e845-cd5d-40d4-a32c-778c168cdaf6",
+      "name": "黄子轩",
+      "groupId": "2",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.034Z"
+    },
+    {
+      "id": "c053be85-4330-44a1-89af-fbab511b3b79",
+      "name": "张乐水",
+      "groupId": "3",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.035Z"
+    },
+    {
+      "id": "0c39811b-8863-4d87-b0a5-cf56a1ff499d",
+      "name": "涂钰晨",
+      "groupId": "3",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.037Z"
+    },
+    {
+      "id": "f6ce33af-1f1d-4533-ae60-f2c3b35877cd",
+      "name": "陈昱成",
+      "groupId": "3",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.038Z"
+    },
+    {
+      "id": "b992039e-9a2a-4689-baf5-7c4508b35225",
+      "name": "郑惜羽",
+      "groupId": "3",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.040Z"
+    },
+    {
+      "id": "2e1fa55d-c5f3-4370-86ab-a4412e14c4bd",
+      "name": "王荣豪",
+      "groupId": "3",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.041Z"
+    },
+    {
+      "id": "188e56bf-3c79-4efa-a671-217be5179570",
+      "name": "张煜萱",
+      "groupId": "4",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.043Z"
+    },
+    {
+      "id": "86b5cf17-8f3a-41d6-9c31-6edc49a5ae3d",
+      "name": "计明恩",
+      "groupId": "4",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.044Z"
+    },
+    {
+      "id": "add89639-45d1-4543-af9d-b5b62dbc1523",
+      "name": "张锦宸",
+      "groupId": "4",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.045Z"
+    },
+    {
+      "id": "e362a025-5556-4fb8-8970-36d266cfcfbf",
+      "name": "黎祯昊",
+      "groupId": "4",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.046Z"
+    },
+    {
+      "id": "691be38b-d40b-4ebb-bd7f-40e66581fd7c",
+      "name": "孔令卓",
+      "groupId": "4",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.048Z"
+    },
+    {
+      "id": "9e74f6a7-9adb-4ca7-be58-25af4528a578",
+      "name": "谢逸橙",
+      "groupId": "5",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.049Z"
+    },
+    {
+      "id": "38168605-e718-4fd3-9c32-4ef5e7c1588a",
+      "name": "朱泓烨",
+      "groupId": "5",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.050Z"
+    },
+    {
+      "id": "ab74eb8c-fcc1-47c4-84a9-0df87fcd4a53",
+      "name": "邓泽人",
+      "groupId": "5",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.051Z"
+    },
+    {
+      "id": "db446ee0-ecf8-415a-b8d0-0a02386bcd52",
+      "name": "张智依",
+      "groupId": "5",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.052Z"
+    },
+    {
+      "id": "7d767510-e787-4db5-8872-b7a0b97bcf30",
+      "name": "周家瑞",
+      "groupId": "5",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.053Z"
+    },
+    {
+      "id": "8887edc5-ef98-4251-afad-993c879c8847",
+      "name": "袁艺",
+      "groupId": "5",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.054Z"
+    },
+    {
+      "id": "ebd0bef8-cd6d-4819-89ef-83d046f604f5",
+      "name": "东昱瑾",
+      "groupId": "6",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.056Z"
+    },
+    {
+      "id": "50519d37-98df-4008-a53c-a1aa69e32652",
+      "name": "宿煜然",
+      "groupId": "6",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.057Z"
+    },
+    {
+      "id": "d870518b-78a0-4bb9-a33b-81588e55df90",
+      "name": "刘雨辰",
+      "groupId": "6",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.058Z"
+    },
+    {
+      "id": "336bbb0d-1689-45ca-a1af-237c4646b9c5",
+      "name": "浮予佳",
+      "groupId": "6",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.059Z"
+    },
+    {
+      "id": "41124838-0682-4551-b2a0-86385544c09c",
+      "name": "孙翌宸",
+      "groupId": "6",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.060Z"
+    },
+    {
+      "id": "64aa6ac4-2756-49b7-8ed6-a031b162d741",
+      "name": "郑羽晴",
+      "groupId": "6",
+      "score": 0,
+      "weeklyScore": 0,
+      "createdAt": "2026-03-28T07:52:53.061Z"
+    }
+  ],
+  "groups": [
+    {
+      "id": "1",
+      "name": "一组",
+      "color": "#C084FC",
+      "lightColor": "#F3E8FF",
+      "createdAt": "2026-03-28T07:52:52.995Z"
+    },
+    {
+      "id": "2",
+      "name": "二组",
+      "color": "#60A5FA",
+      "lightColor": "#DBEAFE",
+      "createdAt": "2026-03-28T07:52:52.999Z"
+    },
+    {
+      "id": "3",
+      "name": "三组",
+      "color": "#4ADE80",
+      "lightColor": "#DCFCE7",
+      "createdAt": "2026-03-28T07:52:53.006Z"
+    },
+    {
+      "id": "4",
+      "name": "四组",
+      "color": "#FB923C",
+      "lightColor": "#FED7AA",
+      "createdAt": "2026-03-28T07:52:53.009Z"
+    },
+    {
+      "id": "5",
+      "name": "五组",
+      "color": "#FACC15",
+      "lightColor": "#FEF9C3",
+      "createdAt": "2026-03-28T07:52:53.012Z"
+    },
+    {
+      "id": "6",
+      "name": "六组",
+      "color": "#F87171",
+      "lightColor": "#FEE2E2",
+      "createdAt": "2026-03-28T07:52:53.015Z"
+    }
+  ],
+  "scores": [
+    {
+      "id": "407a33ea-2f4a-4dbf-b682-5acc4f1e5062",
+      "studentId": "a2349aba-b4f0-4610-90d8-6421e85eb9e9",
+      "groupId": null,
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T06:45:44.028Z"
+    },
+    {
+      "id": "5cd82084-2309-419d-900c-342d62a095d8",
+      "studentId": "eb25df0b-a35d-4232-bc43-70cef6127186",
+      "groupId": null,
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T06:46:32.870Z"
+    },
+    {
+      "id": "7fa6bb0c-af1d-4451-acba-f61b5f2c6eaf",
+      "studentId": null,
+      "groupId": "6e36d7ac-2f98-4a37-89b4-8460c6abae21",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:04:01.512Z"
+    },
+    {
+      "id": "3cadac77-7299-49dc-80d6-b1a72dceb622",
+      "studentId": "1",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:10:33.859Z"
+    },
+    {
+      "id": "05fa8f68-f3d9-4492-b063-4207d1afd726",
+      "studentId": "1",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:10:34.922Z"
+    },
+    {
+      "id": "033e0dd5-b435-4dd2-a656-9e93ecfe7c60",
+      "studentId": "4",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:10:35.806Z"
+    },
+    {
+      "id": "f7ad937b-b5b8-4e19-bd1d-b4a3f91d13f7",
+      "studentId": "3",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:10:36.505Z"
+    },
+    {
+      "id": "5010b528-44ce-46b6-88b4-c3a2df13ce6f",
+      "studentId": "1",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:10:37.121Z"
+    },
+    {
+      "id": "40d06341-f59e-43d3-9e36-8ea2b35d5cfa",
+      "studentId": "2",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:10:37.421Z"
+    },
+    {
+      "id": "be2d1a55-82c0-4eaf-8caf-788b56d85607",
+      "studentId": "1",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:17:43.459Z"
+    },
+    {
+      "id": "df840fd9-dff8-4d52-83c2-6791b06e9490",
+      "studentId": "2",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:17:43.460Z"
+    },
+    {
+      "id": "26a2cc60-c701-41de-8a49-de742d1a7300",
+      "studentId": "3",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:17:43.461Z"
+    },
+    {
+      "id": "3d6583cc-de32-408a-874c-03e1c00260f5",
+      "studentId": "4",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:17:43.461Z"
+    },
+    {
+      "id": "d49ee058-e6c5-4b8c-9d29-3d7998342057",
+      "studentId": "5",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:17:43.462Z"
+    },
+    {
+      "id": "26145780-dfea-4fe1-95df-5f28e20b33c6",
+      "studentId": "6",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:17:43.463Z"
+    },
+    {
+      "id": "c859b2cd-6caa-4daa-a887-7d802a2f91d0",
+      "studentId": "17",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:17:59.937Z"
+    },
+    {
+      "id": "c8fce39e-3d1e-46aa-a759-35f457f6ab1b",
+      "studentId": "18",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:18:00.860Z"
+    },
+    {
+      "id": "1c345bdc-08fb-4733-9a94-8a2cb42180e8",
+      "studentId": "17",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:18:03.196Z"
+    },
+    {
+      "id": "ffec416f-5f21-4add-94b1-105f4f04e871",
+      "studentId": "18",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:18:03.198Z"
+    },
+    {
+      "id": "426d9c6f-1969-4656-a722-67bf3af60be1",
+      "studentId": "19",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:18:03.200Z"
+    },
+    {
+      "id": "af5380aa-8d0b-44dd-850f-47f096b91bfe",
+      "studentId": "20",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:18:03.202Z"
+    },
+    {
+      "id": "bee43cfa-a062-4015-9755-103cfbee99a9",
+      "studentId": "21",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:18:03.204Z"
+    },
+    {
+      "id": "d1600e8f-f72d-48a9-96ce-a90342110f25",
+      "studentId": "17",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:18:05.279Z"
+    },
+    {
+      "id": "0ec16970-be35-4c8c-b9f5-cc79050624fb",
+      "studentId": "18",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:18:05.281Z"
+    },
+    {
+      "id": "52b9a070-0aa7-4849-a3b2-fefa5b3c446f",
+      "studentId": "19",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:18:05.282Z"
+    },
+    {
+      "id": "dee9ca6d-3929-40cd-9594-298e7aabf0c1",
+      "studentId": "20",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:18:05.285Z"
+    },
+    {
+      "id": "9c0cc58b-b8b9-477d-a184-010c4d699dc5",
+      "studentId": "21",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:18:05.287Z"
+    },
+    {
+      "id": "2c3d19f8-1b26-4e8f-8152-c09cb7a4051d",
+      "studentId": "0b1fa055-02fb-4495-a223-880dfdb5ac60",
+      "groupId": null,
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:18:27.419Z"
+    },
+    {
+      "id": "a6280225-222a-4d1d-b60d-0eae15101549",
+      "studentId": "89242de5-cd68-4cc2-b153-0775602a7059",
+      "groupId": null,
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:18:39.137Z"
+    },
+    {
+      "id": "9886bd97-453d-4ae7-bbfd-28117a559e3a",
+      "studentId": null,
+      "groupId": "861e1ece-2260-4f78-8761-3f4fa03dc757",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:18:47.188Z"
+    },
+    {
+      "id": "0e92bd39-24f8-467d-9cfc-e4a2fbf0caa8",
+      "studentId": "1",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:43.992Z"
+    },
+    {
+      "id": "a6062138-f52f-4566-89f6-0a24019dce49",
+      "studentId": "2",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:43.995Z"
+    },
+    {
+      "id": "1bdf3a8c-3d1c-4f7a-a0ad-43d606f33612",
+      "studentId": "3",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:43.997Z"
+    },
+    {
+      "id": "4077195e-2af7-4266-a358-9cc0ad916f06",
+      "studentId": "4",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:43.999Z"
+    },
+    {
+      "id": "8ab39148-3d6a-4820-a4c2-749d9caff0d7",
+      "studentId": "5",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:44.000Z"
+    },
+    {
+      "id": "47270d83-52be-4e65-a136-1c5b099f7b34",
+      "studentId": "6",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:44.002Z"
+    },
+    {
+      "id": "e1055e01-dae0-4d9a-ba52-a44990a54295",
+      "studentId": "1",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:45.363Z"
+    },
+    {
+      "id": "c7cbc996-c75e-4992-8570-e1007accf6f3",
+      "studentId": "2",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:45.365Z"
+    },
+    {
+      "id": "06089ddb-811c-4856-b85e-8e98c7711ac0",
+      "studentId": "3",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:45.367Z"
+    },
+    {
+      "id": "46f24692-e1ae-412b-b243-cfc516f211e8",
+      "studentId": "4",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:45.370Z"
+    },
+    {
+      "id": "d2b8d45c-43c0-4f6d-8eee-a4dba821ca83",
+      "studentId": "5",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:45.371Z"
+    },
+    {
+      "id": "645cf97a-2e39-441e-9b80-48346cf2df8f",
+      "studentId": "6",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:44:45.373Z"
+    },
+    {
+      "id": "dcbd6d5d-e7c6-443a-b5e8-ce838e68149e",
+      "studentId": null,
+      "groupId": "faeb0b4f-a9e8-4fd6-8a37-1c5f034df514",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:48:17.455Z"
+    },
+    {
+      "id": "d8617db2-8a5f-4df8-894b-47d233fc863f",
+      "studentId": null,
+      "groupId": "1",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:53:14.650Z"
+    },
+    {
+      "id": "8aad1e67-b019-471d-a53c-49a778fcb59e",
+      "studentId": null,
+      "groupId": "2",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:53:21.463Z"
+    },
+    {
+      "id": "d64c063c-a552-4657-8163-0660e19802c6",
+      "studentId": "df4012b0-bfea-4657-b491-db014d4a6004",
+      "groupId": null,
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:53:43.269Z"
+    },
+    {
+      "id": "057aa229-412e-4483-860c-76b91b3935ce",
+      "studentId": "b4797227-3193-47d5-a6f9-23842e6d05ee",
+      "groupId": null,
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:53:47.775Z"
+    },
+    {
+      "id": "078bf08c-e464-4d63-bdb7-f41139cd459c",
+      "studentId": null,
+      "groupId": "2",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:58:09.350Z"
+    },
+    {
+      "id": "8e7df850-8eaf-4034-aeed-f67399082a7a",
+      "studentId": null,
+      "groupId": "2",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:58:13.835Z"
+    },
+    {
+      "id": "c86d5a76-b847-4520-905b-da0ddadbe8c8",
+      "studentId": "b4797227-3193-47d5-a6f9-23842e6d05ee",
+      "groupId": null,
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T07:58:16.141Z"
+    },
+    {
+      "id": "655da666-d662-4e7d-afa5-f010b14578d8",
+      "studentId": null,
+      "groupId": "2",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T07:58:19.082Z"
+    },
+    {
+      "id": "9e34a4e5-83b1-4f28-9634-c3d1e0515d3c",
+      "studentId": null,
+      "groupId": "3",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T08:02:06.766Z"
+    },
+    {
+      "id": "9d9a3834-99f7-4959-be76-3bbaef9b1ba9",
+      "studentId": null,
+      "groupId": "3",
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-03-28T08:02:08.436Z"
+    },
+    {
+      "id": "95012712-489b-481d-af66-ea89a9c346c9",
+      "studentId": null,
+      "groupId": "1",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T08:03:18.505Z"
+    },
+    {
+      "id": "12259021-bb6c-4873-951a-892ffd129b43",
+      "studentId": null,
+      "groupId": "1",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T08:03:33.023Z"
+    },
+    {
+      "id": "0129b39e-9720-41c1-9474-71a38ad49258",
+      "studentId": null,
+      "groupId": "3",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T08:05:01.077Z"
+    },
+    {
+      "id": "13c8a07a-7ffd-4811-80da-e5da94559836",
+      "studentId": null,
+      "groupId": "4",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-03-28T08:05:03.707Z"
+    }
+  ],
+  "rules": [
+    {
+      "id": "2",
+      "name": "优秀表现",
+      "value": 3,
+      "icon": "⭐",
+      "color": "#F59E0B",
+      "type": "add"
+    },
+    {
+      "id": "6",
+      "name": "迟到扣分",
+      "value": -3,
+      "icon": "⏰",
+      "color": "#F97316",
+      "type": "subtract"
+    },
+    {
+      "id": "7",
+      "name": "抄袭扣分",
+      "value": -5,
+      "icon": "📝",
+      "color": "#DC2626",
+      "type": "subtract"
+    },
+    {
+      "id": "8",
+      "name": "严重违规",
+      "value": -10,
+      "icon": "🚫",
+      "color": "#991B1B",
+      "type": "subtract"
+    }
+  ],
+  "settings": {
+    "apiKey": "aee69562-2a1d-4d48-8be1-4d2bba08da29",
+    "webhookUrl": "",
+    "theme": "dark"
+  }
+}

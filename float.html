@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>悬浮球</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 60px;
+      height: 60px;
+      overflow: hidden;
+      background: transparent;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+
+    .float-ball {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+      -webkit-app-region: no-drag;
+    }
+
+    /* 拖拽手柄区域 - 整个body,除了悬浮球外都是可拖拽的 */
+    .drag-handle {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .float-ball:hover {
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.6);
+    }
+
+    .float-ball:active {
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+
+    .float-ball .icon {
+      font-size: 24px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      pointer-events: none;
+    }
+
+    /* 确保悬浮球在最上层 */
+    .float-ball {
+      position: relative;
+      z-index: 10;
+    }
+
+    .pulse {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(99, 102, 241, 0.3);
+      animation: pulse 2s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="drag-handle"></div>
+  <div class="float-ball" id="floatBall">
+    <span class="icon">⚡</span>
+    <div class="pulse"></div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const floatBall = document.getElementById('floatBall');
+    let isDragging = false;
+    let startX, startY;
+    const DRAG_THRESHOLD = 5;
+
+    // 鼠标按下
+    floatBall.addEventListener('mousedown', (e) => {
+      isDragging = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      console.log('Mouse down at:', startX, startY);
+    });
+
+    // 鼠标移动
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging && startX !== undefined) {
+        const deltaX = Math.abs(e.clientX - startX);
+        const deltaY = Math.abs(e.clientY - startY);
+        if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
+          isDragging = true;
+          console.log('Dragging started');
+        }
+      }
+    });
+
+    // 点击事件
+    floatBall.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Click event, isDragging:', isDragging);
+      if (!isDragging) {
+        console.log('Sending float-click IPC');
+        ipcRenderer.send('float-click');
+      }
+      isDragging = false;
+      startX = undefined;
+      startY = undefined;
+    });
+
+    // 防止右键菜单
+    floatBall.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
+  </script>
+</body>
+</html>

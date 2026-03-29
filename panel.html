@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>快速操作面板</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 380px;
+      height: 520px;
+      overflow: hidden;
+      background: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    }
+
+    /* Hidden 类必须优先级最高 */
+    .hidden {
+      display: none !important;
+    }
+
+    .icon-button.hidden {
+      display: none !important;
+    }
+
+    .selected-group.hidden {
+      display: none !important;
+    }
+
+    .group-list.hidden {
+      display: none !important;
+    }
+
+    .selected-student.hidden {
+      display: none !important;
+    }
+
+    .group-random-container.hidden {
+      display: none !important;
+    }
+
+    .panel-container {
+      width: 100%;
+      height: 100%;
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-title {
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      flex: 1;
+    }
+
+    .header-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-button {
+      color: rgba(255, 255, 255, 0.6);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .icon-button:hover {
+      color: white;
+    }
+
+    .random-button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+      border: none;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .random-button:hover {
+      background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+    }
+
+    .selected-group {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .selected-group.hidden {
+      display: none;
+    }
+
+    .group-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .group-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .group-name {
+      color: white;
+      font-weight: bold;
+    }
+
+    .member-count {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+
+    .group-random-container {
+      margin-bottom: 12px;
+    }
+
+    .group-random-container.hidden {
+      display: none;
+    }
+
+    .member-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .group-list {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .group-list.hidden {
+      display: none;
+    }
+
+    .group-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .group-card {
+      padding: 12px;
+      border-radius: 12px;
+      text-align: left;
+      background: rgba(51, 65, 85, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .group-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .group-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .group-card-color {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .group-card-name {
+      font-weight: bold;
+      color: white;
+      font-size: 14px;
+    }
+
+    .group-card-count {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .group-card-score {
+      font-size: 16px;
+      font-weight: bold;
+      color: #34D399;
+      margin-top: 4px;
+    }
+
+    .group-card-actions {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .group-action-btn {
+      flex: 1;
+      padding: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .group-action-btn.add {
+      background-color: #22c55e;
+    }
+
+    .group-action-btn.subtract {
+      background-color: #ef4444;
+    }
+
+    .selected-student {
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .selected-student.hidden {
+      display: none;
+    }
+
+    .student-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .student-details {
+      flex: 1;
+    }
+
+    .student-name {
+      color: white;
+      font-weight: 500;
+    }
+
+    .student-scores {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .score-label {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .score-weekly {
+      color: #60A5FA;
+      font-weight: bold;
+    }
+
+    .score-total {
+      color: #34D399;
+      font-weight: bold;
+    }
+
+    .student-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .student-btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s, background-color 0.2s;
+    }
+
+    .student-btn.add {
+      background-color: #22c55e;
+    }
+
+    .student-btn.add:hover {
+      background-color: #16a34a;
+      transform: scale(1.05);
+    }
+
+    .student-btn.subtract {
+      background-color: #ef4444;
+    }
+
+    .student-btn.subtract:hover {
+      background-color: #dc2626;
+      transform: scale(1.05);
+    }
+
+    .student-btn:active {
+      transform: scale(0.95);
+    }
+
+    .student-item {
+      padding: 8px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s;
+      background: rgba(51, 65, 85, 0.6);
+    }
+
+    .student-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .student-item-name {
+      color: white;
+      font-size: 14px;
+      flex: 1;
+    }
+
+    .student-item-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .student-item-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .student-item-btn.add {
+      background-color: #22c55e;
+    }
+
+    .student-item-btn.subtract {
+      background-color: #ef4444;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+      50% {
+        opacity: 1;
+        transform: translate(-50%, -100%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -200%) scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel-container" id="panel">
+    <!-- 顶部 -->
+    <div class="header">
+      <div class="header-buttons">
+        <button id="backBtn" class="icon-button hidden">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        <h2 class="header-title">快速操作</h2>
+        <button id="addPresetBtn" class="icon-button" title="添加预设人员">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+        </button>
+        <button id="closeBtn" class="icon-button">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- 随机抽人 -->
+      <button id="randomBtn" class="random-button">
+        <span style="font-size: 18px;">🎲</span>
+        <span style="font-size: 14px;">随机抽人</span>
+      </button>
+    </div>
+
+    <!-- 选中的组 -->
+    <div id="selectedGroup" class="selected-group hidden">
+      <div class="group-info">
+        <div id="groupDot" class="group-dot"></div>
+        <span id="groupName" class="group-name"></span>
+        <span id="memberCount" class="member-count"></span>
+      </div>
+
+      <!-- 组内随机抽人 -->
+      <div id="groupRandomContainer" class="group-random-container"></div>
+
+      <!-- 组员列表 -->
+      <div id="memberList" class="member-list"></div>
+    </div>
+
+    <!-- 小组卡片列表 -->
+    <div id="groupList" class="group-list">
+      <div class="group-cards" id="groupCards"></div>
+    </div>
+
+    <!-- 当前选中学生 -->
+    <div id="selectedStudent" class="selected-student hidden">
+      <div class="student-info">
+        <div class="student-details">
+          <div id="studentName" class="student-name"></div>
+          <div class="student-scores">
+            <span class="score-label">本周: <span id="studentWeekly" class="score-weekly"></span></span>
+            <span class="score-label">累计: <span id="studentTotal" class="score-total"></span></span>
+          </div>
+        </div>
+        <div class="student-buttons">
+          <button class="student-btn add" id="studentAddBtn">+3</button>
+          <button class="student-btn subtract" id="studentSubBtn">-2</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const API_BASE = 'http://localhost:3001';
+
+    let apiAvailable = false;
+
+    // 检查 API 服务器是否可用
+    async function checkApiServer() {
+      try {
+        const response = await fetch(`${API_BASE}/api/health`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(2000),
+        });
+        apiAvailable = response.ok;
+        console.log('API server available:', apiAvailable);
+        return apiAvailable;
+      } catch (error) {
+        console.log('API server not available:', error);
+        apiAvailable = false;
+        return false;
+      }
+    }
+
+    // 监听面板显示事件,重置到初始状态
+    ipcRenderer.on('panel-show', () => {
+      console.log('Panel shown, resetting to initial state');
+      resetPanel();
+    });
+
+    // 写死的小组数据（用于预设数据和颜色配置）
+    const fixedGroups = [
+      { id: '1', name: '一组', color: '#C084FC', lightColor: '#F3E8FF' },
+      { id: '2', name: '二组', color: '#60A5FA', lightColor: '#DBEAFE' },
+      { id: '3', name: '三组', color: '#4ADE80', lightColor: '#DCFCE7' },
+      { id: '4', name: '四组', color: '#FB923C', lightColor: '#FED7AA' },
+      { id: '5', name: '五组', color: '#FACC15', lightColor: '#FEF9C3' },
+      { id: '6', name: '六组', color: '#F87171', lightColor: '#FEE2E2' },
+    ];
+
+    // 写死的学生数据
+    const fixedStudents = [
+      { id: '1', name: '朱子墨', groupId: '1', score: 0, weeklyScore: 0 },
+      { id: '2', name: '刘家齐', groupId: '1', score: 0, weeklyScore: 0 },
+      { id: '3', name: '黎敏中', groupId: '1', score: 0, weeklyScore: 0 },
+      { id: '4', name: '刘祖恩', groupId: '1', score: 0, weeklyScore: 0 },
+      { id: '5', name: '周玥希', groupId: '1', score: 0, weeklyScore: 0 },
+      { id: '6', name: '王英哲', groupId: '1', score: 0, weeklyScore: 0 },
+      { id: '7', name: '吴书帆', groupId: '2', score: 0, weeklyScore: 0 },
+      { id: '8', name: '况寺琦', groupId: '2', score: 0, weeklyScore: 0 },
+      { id: '9', name: '向梓轩', groupId: '2', score: 0, weeklyScore: 0 },
+      { id: '10', name: '付泽宜', groupId: '2', score: 0, weeklyScore: 0 },
+      { id: '11', name: '黄子轩', groupId: '2', score: 0, weeklyScore: 0 },
+      { id: '12', name: '张乐水', groupId: '3', score: 0, weeklyScore: 0 },
+      { id: '13', name: '涂钰晨', groupId: '3', score: 0, weeklyScore: 0 },
+      { id: '14', name: '陈昱成', groupId: '3', score: 0, weeklyScore: 0 },
+      { id: '15', name: '郑惜羽', groupId: '3', score: 0, weeklyScore: 0 },
+      { id: '16', name: '王荣豪', groupId: '3', score: 0, weeklyScore: 0 },
+      { id: '17', name: '张煜萱', groupId: '4', score: 0, weeklyScore: 0 },
+      { id: '18', name: '计明恩', groupId: '4', score: 0, weeklyScore: 0 },
+      { id: '19', name: '张锦宸', groupId: '4', score: 0, weeklyScore: 0 },
+      { id: '20', name: '黎祯昊', groupId: '4', score: 0, weeklyScore: 0 },
+      { id: '21', name: '孔令卓', groupId: '4', score: 0, weeklyScore: 0 },
+      { id: '22', name: '谢逸橙', groupId: '5', score: 0, weeklyScore: 0 },
+      { id: '23', name: '朱泓烨', groupId: '5', score: 0, weeklyScore: 0 },
+      { id: '24', name: '邓泽人', groupId: '5', score: 0, weeklyScore: 0 },
+      { id: '25', name: '张智依', groupId: '5', score: 0, weeklyScore: 0 },
+      { id: '26', name: '周家瑞', groupId: '5', score: 0, weeklyScore: 0 },
+      { id: '27', name: '袁艺', groupId: '5', score: 0, weeklyScore: 0 },
+      { id: '28', name: '东昱瑾', groupId: '6', score: 0, weeklyScore: 0 },
+      { id: '29', name: '宿煜然', groupId: '6', score: 0, weeklyScore: 0 },
+      { id: '30', name: '刘雨辰', groupId: '6', score: 0, weeklyScore: 0 },
+      { id: '31', name: '浮予佳', groupId: '6', score: 0, weeklyScore: 0 },
+      { id: '32', name: '孙翌宸', groupId: '6', score: 0, weeklyScore: 0 },
+      { id: '33', name: '郑羽晴', groupId: '6', score: 0, weeklyScore: 0 },
+    ];
+
+    // 实际使用的数据
+    let groups = [];  // API返回的组数据
+    let students = [];
+    let selectedGroup = null;
+    let selectedStudent = null;
+
+    // 初始化
+    async function init() {
+      // 确保初始状态正确
+      document.getElementById('groupList').classList.remove('hidden');
+      document.getElementById('selectedGroup').classList.add('hidden');
+      document.getElementById('selectedStudent').classList.add('hidden');
+      document.getElementById('backBtn').classList.add('hidden');
+
+      await loadData();
+      setupEventListeners();
+
+      console.log('Panel initialized');
+      console.log('groupList display:', document.getElementById('groupList').style.display);
+      console.log('groupList classes:', document.getElementById('groupList').className);
+      console.log('groupCards innerHTML length:', document.getElementById('groupCards').innerHTML.length);
+    }
+
+    // 添加预设数据到API
+    async function addPresetData() {
+      try {
+        console.log('Adding preset data to API...');
+
+        // 获取当前已存在的数据
+        const [groupsRes, studentsRes] = await Promise.all([
+          fetch(`${API_BASE}/api/groups`),
+          fetch(`${API_BASE}/api/students`)
+        ]);
+
+        const existingGroups = await groupsRes.json();
+        const existingStudents = await studentsRes.json();
+
+        console.log('Existing groups:', existingGroups.length);
+        console.log('Existing students:', existingStudents.length);
+
+        // 添加小组（检查是否已存在）
+        for (const group of fixedGroups) {
+          const exists = existingGroups.find(g => g.name === group.name);
+          if (exists) {
+            console.log(`Group ${group.name} already exists, skipping`);
+          } else {
+            const response = await fetch(`${API_BASE}/api/groups`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(group)
+            });
+            if (response.ok) {
+              console.log(`Added group: ${group.name}`);
+            } else {
+              console.error('Failed to add group:', await response.text());
+            }
+          }
+        }
+
+        // 重新获取小组以获取正确的 ID
+        const updatedGroupsRes = await fetch(`${API_BASE}/api/groups`);
+        const updatedGroups = await updatedGroupsRes.json();
+
+        // 添加学生（检查是否已存在）
+        for (const student of fixedStudents) {
+          const exists = existingStudents.find(s => s.name === student.name);
+          if (exists) {
+            console.log(`Student ${student.name} already exists, skipping`);
+          } else {
+            // 查找对应的小组 ID
+            const group = updatedGroups.find(g => g.name === fixedGroups.find(fg => fg.id === student.groupId).name);
+            const studentData = {
+              ...student,
+              groupId: group ? group.id : null
+            };
+
+            const response = await fetch(`${API_BASE}/api/students`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(studentData)
+            });
+            if (response.ok) {
+              console.log(`Added student: ${student.name}`);
+            } else {
+              console.error('Failed to add student:', await response.text());
+            }
+          }
+        }
+
+        alert('预设数据添加完成！');
+        await loadData();  // 重新加载数据以显示
+      } catch (error) {
+        console.error('Failed to add preset data:', error);
+        alert('添加预设数据失败: ' + error.message);
+      }
+    }
+
+    // 加载数据
+    async function loadData() {
+      // 首先检查 API 是否可用
+      await checkApiServer();
+
+      try {
+        if (apiAvailable) {
+          // 从API加载数据
+          const [studentsRes, groupsRes] = await Promise.all([
+            fetch(`${API_BASE}/api/students`),
+            fetch(`${API_BASE}/api/groups`)
+          ]);
+
+          if (!studentsRes.ok || !groupsRes.ok) {
+            throw new Error('API request failed');
+          }
+
+          const apiStudents = await studentsRes.json();
+          const apiGroups = await groupsRes.json();
+
+          console.log('API Students:', apiStudents.length);
+          console.log('API Groups:', apiGroups.length);
+          console.log('Sample API student:', apiStudents[0]);
+          console.log('Sample API group:', apiGroups[0]);
+
+          // 如果API中有数据,使用API数据,否则使用硬编码数据
+          if (apiGroups.length > 0) {
+            // 使用API返回的组数据，并合并fixedGroups的样式信息
+            groups = apiGroups.map((g) => {
+              const fixedGroup = fixedGroups.find(fg => fg.name === g.name);
+              return {
+                ...g,
+                color: fixedGroup ? fixedGroup.color : g.color,
+                lightColor: fixedGroup ? fixedGroup.lightColor : g.lightColor
+              };
+            });
+          } else {
+            groups = [...fixedGroups];
+          }
+
+          if (apiStudents.length > 0) {
+            students = apiStudents;
+          } else {
+            students = [...fixedStudents];
+          }
+        } else {
+          console.log('Using fixed data (API not available)');
+          groups = [...fixedGroups];
+          students = [...fixedStudents];
+        }
+
+        console.log('Loaded students:', students.length, 'students');
+        console.log('Loaded groups:', groups.length, 'groups');
+
+        // 验证数据
+        groups.forEach(group => {
+          const members = students.filter(s => s.groupId === group.id);
+          console.log(`${group.name}: ${members.length} members`, members.map(m => m.name));
+        });
+
+        renderGroups();
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        // 如果加载失败,使用硬编码数据
+        groups = [...fixedGroups];
+        students = [...fixedStudents];
+        renderGroups();
+      }
+    }
+
+    // 渲染小组卡片
+    function renderGroups() {
+      const groupCards = document.getElementById('groupCards');
+      groupCards.innerHTML = groups.map(group => {
+        const groupMembers = students.filter(s => s.groupId === group.id);
+        // 计算小组总分
+        const groupTotalScore = groupMembers.reduce((sum, s) => sum + (s.score || 0), 0);
+        console.log(`Group ${group.name}:`, groupMembers.length, 'members', groupMembers.map(m => m.name), `Total: ${groupTotalScore}`);
+        return `
+          <div class="group-card" style="background-color: ${group.lightColor}40;">
+            <button class="group-card-header" style="width: 100%; background: none; border: none; padding: 0; text-align: left; cursor: pointer;" onclick="selectGroup('${group.id}')">
+              <div class="group-card-color" style="background-color: ${group.color}"></div>
+              <span class="group-card-name">${group.name}</span>
+            </button>
+            <div class="group-card-count">${groupMembers.length}人</div>
+            <div class="group-card-score">${groupTotalScore}分</div>
+            <div class="group-card-actions">
+              <button class="group-action-btn add" onclick="event.stopPropagation(); addGroupScore('${group.id}', 3)">+3×${groupMembers.length}</button>
+              <button class="group-action-btn subtract" onclick="event.stopPropagation(); addGroupScore('${group.id}', -2)">-2×${groupMembers.length}</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      console.log('Groups rendered, groupCards innerHTML length:', groupCards.innerHTML.length);
+    }
+
+    // 选择小组
+    function selectGroup(groupId) {
+      selectedGroup = groups.find(g => g.id === groupId);
+      selectedStudent = null;
+
+      document.getElementById('selectedGroup').classList.remove('hidden');
+      document.getElementById('groupList').classList.add('hidden');
+      document.getElementById('selectedStudent').classList.add('hidden');
+
+      document.getElementById('groupDot').style.backgroundColor = selectedGroup.color;
+      document.getElementById('groupName').textContent = selectedGroup.name;
+
+      const groupMembers = students.filter(s => s.groupId === selectedGroup.id);
+      document.getElementById('memberCount').textContent = `(${groupMembers.length}人)`;
+
+      // 显示返回按钮
+      document.getElementById('backBtn').classList.remove('hidden');
+
+      renderMembers();
+      renderGroupRandomPicker();
+    }
+
+    // 渲染组内随机抽人
+    function renderGroupRandomPicker() {
+      const container = document.getElementById('groupRandomContainer');
+      const groupMembers = students.filter(s => s.groupId === selectedGroup.id);
+      
+      if (groupMembers.length > 0) {
+        container.innerHTML = `
+          <button onclick="randomPickGroupMember()" class="w-full py-2 px-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-lg flex items-center justify-center gap-2 transition-all text-white font-medium shadow-lg">
+            <span class="text-lg">🎲</span>
+            <span class="text-sm">组内随机抽人</span>
+          </button>
+        `;
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    // 组内随机抽人
+    function randomPickGroupMember() {
+      const groupMembers = students.filter(s => s.groupId === selectedGroup.id);
+      if (groupMembers.length === 0) return;
+
+      const randomStudent = groupMembers[Math.floor(Math.random() * groupMembers.length)];
+      selectStudent(randomStudent.id);
+    }
+
+    // 将函数挂载到 window
+    window.randomPickGroupMember = randomPickGroupMember;
+
+    // 渲染组员列表
+    function renderMembers() {
+      const memberList = document.getElementById('memberList');
+      const groupMembers = students.filter(s => s.groupId === selectedGroup.id);
+
+      console.log('Rendering members for group:', selectedGroup.name, 'Count:', groupMembers.length);
+
+      memberList.innerHTML = groupMembers.map(member => `
+        <div class="student-item">
+          <span class="student-item-name">${member.name}</span>
+          <div class="student-item-actions">
+            <button onclick="addStudentScore('${member.id}', 3)" class="student-item-btn add">+3</button>
+            <button onclick="addStudentScore('${member.id}', -2)" class="student-item-btn subtract">-2</button>
+          </div>
+        </div>
+      `).join('');
+
+      console.log('Member list HTML length:', memberList.innerHTML.length);
+    }
+
+    // 选择学生
+    function selectStudent(studentId) {
+      selectedStudent = students.find(s => s.id === studentId);
+      if (!selectedStudent) return;
+
+      document.getElementById('selectedStudent').classList.remove('hidden');
+      document.getElementById('studentName').textContent = selectedStudent.name;
+      document.getElementById('studentWeekly').textContent = selectedStudent.weeklyScore || 0;
+      document.getElementById('studentTotal').textContent = selectedStudent.score || 0;
+
+      // 显示返回按钮
+      document.getElementById('backBtn').classList.remove('hidden');
+    }
+
+    // 将函数挂载到 window
+    window.selectStudent = selectStudent;
+
+    // 返回小组列表
+    function backToGroups() {
+      selectedGroup = null;
+      selectedStudent = null;
+
+      document.getElementById('selectedGroup').classList.add('hidden');
+      document.getElementById('selectedStudent').classList.add('hidden');
+      document.getElementById('groupList').classList.remove('hidden');
+      document.getElementById('backBtn').classList.add('hidden');
+
+      console.log('Back to groups');
+    }
+
+    // 重置面板到初始状态
+    function resetPanel() {
+      backToGroups();
+    }
+
+    // 返回组员列表
+    function backToMembers() {
+      selectedStudent = null;
+      document.getElementById('selectedStudent').classList.add('hidden');
+    }
+
+    // 随机抽人（从所有学生中抽取）
+    async function randomPick() {
+      if (students.length === 0) {
+        alert('还没有学生数据');
+        return;
+      }
+
+      const randomStudent = students[Math.floor(Math.random() * students.length)];
+      console.log('Random pick:', randomStudent.name, 'from group:', randomStudent.groupId);
+
+      // 找到该学生所在的小组
+      const group = groups.find(g => g.id === randomStudent.groupId);
+      if (group) {
+        selectGroup(group.id);
+        selectStudent(randomStudent.id);
+      }
+    }
+
+    // 将函数挂载到 window
+    window.randomPick = randomPick;
+
+    // 小组加分 - 给组内每个成员加分
+    async function addGroupScore(groupId, value) {
+      try {
+        const groupMembers = students.filter(s => s.groupId === groupId);
+        console.log(`[addGroupScore] Adding ${value} to ${groupMembers.length} members in group ${groupId}`);
+        console.log(`[addGroupScore] Group members:`, groupMembers.map(m => ({ id: m.id, name: m.name })));
+
+        if (groupMembers.length === 0) {
+          alert('该小组没有成员');
+          return;
+        }
+
+        let successCount = 0;
+        let failCount = 0;
+
+        // 为每个组员加/减分
+        if (apiAvailable) {
+          // API可用时，批量调用API
+          const endpoint = value > 0 ? '/api/score/add' : '/api/score/subtract';
+          console.log(`[addGroupScore] API available, calling ${endpoint}`);
+
+          for (const member of groupMembers) {
+            try {
+              const response = await fetch(`${API_BASE}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId: member.id, value: Math.abs(value) })
+              });
+
+              if (response.ok) {
+                successCount++;
+                console.log(`[addGroupScore] ✓ Added ${value} to ${member.name} (ID: ${member.id})`);
+              } else {
+                failCount++;
+                console.error(`[addGroupScore] ✗ Failed to add ${value} to ${member.name}:`, await response.text());
+              }
+            } catch (error) {
+              failCount++;
+              console.error(`[addGroupScore] ✗ Error adding ${value} to ${member.name}:`, error);
+            }
+          }
+
+          console.log(`[addGroupScore] Completed: ${successCount} success, ${failCount} failed`);
+
+          // 如果有失败，提示用户
+          if (failCount > 0) {
+            alert(`部分成员加分失败：成功 ${successCount} 人，失败 ${failCount} 人`);
+          }
+
+          // 重新加载数据
+          console.log(`[addGroupScore] Reloading data from API...`);
+          await loadData();
+        } else {
+          // API不可用时，只更新本地数据
+          console.log(`[addGroupScore] API not available, updating local data`);
+
+          for (const member of groupMembers) {
+            const student = students.find(s => s.id === member.id);
+            if (student) {
+              student.score = (student.score || 0) + value;
+              student.weeklyScore = (student.weeklyScore || 0) + value;
+              successCount++;
+              console.log(`[addGroupScore] ✓ Added ${value} to ${member.name} locally:`, student);
+            } else {
+              failCount++;
+              console.error(`[addGroupScore] ✗ Student not found: ${member.id}`);
+            }
+          }
+
+          console.log(`[addGroupScore] Local update completed: ${successCount} success, ${failCount} failed`);
+
+          // 刷新UI
+          if (selectedGroup) {
+            selectGroup(groupId);
+          }
+          renderGroups();
+        }
+
+        // 显示动画
+        showFloatAnimation(value);
+
+      } catch (error) {
+        console.error('[addGroupScore] Failed:', error);
+        alert('加分失败: ' + error.message);
+      }
+    }
+
+    // 学生加分
+    async function addStudentScore(studentId, value) {
+      try {
+        const student = students.find(s => s.id === studentId);
+        if (!student) {
+          console.error('[addStudentScore] Student not found:', studentId);
+          alert('学生不存在');
+          return;
+        }
+
+        console.log(`[addStudentScore] Adding ${value} to ${student.name} (ID: ${studentId})`);
+        console.log(`[addStudentScore] Current scores - score: ${student.score}, weeklyScore: ${student.weeklyScore}`);
+
+        if (apiAvailable) {
+          const endpoint = value > 0 ? '/api/score/add' : '/api/score/subtract';
+          console.log(`[addStudentScore] API available, calling ${endpoint}`);
+
+          const response = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ studentId, value: Math.abs(value) })
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            console.log('[addStudentScore] ✓ Updated via API:', result);
+          } else {
+            console.error('[addStudentScore] ✗ API error:', await response.text());
+            alert('API调用失败');
+            return;
+          }
+
+          // 重新加载数据
+          console.log('[addStudentScore] Reloading data from API...');
+          await loadData();
+        } else {
+          // API 不可用时,只更新本地数据
+          console.log('[addStudentScore] API not available, updating local data');
+          student.score = (student.score || 0) + value;
+          student.weeklyScore = (student.weeklyScore || 0) + value;
+          console.log('[addStudentScore] ✓ Updated locally:', student);
+        }
+
+        // 更新当前选中的学生显示
+        if (selectedStudent && selectedStudent.id === studentId) {
+          const updatedStudent = students.find(s => s.id === studentId);
+          if (updatedStudent) {
+            selectedStudent = updatedStudent;
+            document.getElementById('studentWeekly').textContent = selectedStudent.weeklyScore || 0;
+            document.getElementById('studentTotal').textContent = selectedStudent.score || 0;
+            console.log('[addStudentScore] Updated UI for selected student');
+          }
+        }
+
+        // 刷新组员列表
+        if (selectedGroup) {
+          renderMembers();
+          console.log('[addStudentScore] Refreshed member list');
+        }
+
+        showFloatAnimation(value);
+        console.log('[addStudentScore] ✓ Operation completed successfully');
+
+      } catch (error) {
+        console.error('[addStudentScore] ✗ Failed:', error);
+        alert('加分失败: ' + error.message);
+      }
+    }
+
+    // 将函数挂载到 window
+    window.addStudentScore = addStudentScore;
+
+    // 显示浮动动画
+    function showFloatAnimation(value) {
+      const animation = document.createElement('div');
+      animation.style.position = 'fixed';
+      animation.style.top = '50%';
+      animation.style.left = '50%';
+      animation.style.transform = 'translate(-50%, -50%)';
+      animation.style.fontSize = '48px';
+      animation.style.fontWeight = 'bold';
+      animation.style.pointerEvents = 'none';
+      animation.style.zIndex = '50';
+      animation.style.color = value > 0 ? '#22c55e' : '#ef4444';
+      animation.style.textShadow = '0 4px 12px rgba(0,0,0,0.3)';
+      animation.style.animation = 'floatUp 1.5s ease-out forwards';
+      animation.textContent = value > 0 ? `+${value}` : value;
+      document.body.appendChild(animation);
+
+      setTimeout(() => animation.remove(), 1500);
+    }
+
+    // 设置事件监听
+    function setupEventListeners() {
+      // 关闭按钮
+      document.getElementById('closeBtn').addEventListener('click', () => {
+        ipcRenderer.send('panel-hide');
+      });
+
+      // 随机抽人
+      document.getElementById('randomBtn').addEventListener('click', randomPick);
+
+      // 添加预设人员
+      document.getElementById('addPresetBtn').addEventListener('click', addPresetData);
+
+      // 返回按钮
+      document.getElementById('backBtn').addEventListener('click', () => {
+        if (selectedStudent) {
+          backToMembers();
+        } else if (selectedGroup) {
+          backToGroups();
+        }
+      });
+
+      // 学生加分按钮
+      document.getElementById('studentAddBtn').addEventListener('click', () => {
+        if (selectedStudent) {
+          addStudentScore(selectedStudent.id, 3);
+        }
+      });
+      document.getElementById('studentSubBtn').addEventListener('click', () => {
+        if (selectedStudent) {
+          addStudentScore(selectedStudent.id, -2);
+        }
+      });
+
+      // 键盘快捷键
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (selectedStudent) {
+            backToMembers();
+          } else if (selectedGroup) {
+            backToGroups();
+          } else {
+            ipcRenderer.send('panel-hide');
+          }
+        }
+      });
+
+      // 失去焦点时关闭
+      document.addEventListener('blur', () => {
+        setTimeout(() => {
+          if (!document.hasFocus()) {
+            ipcRenderer.send('panel-hide');
+          }
+        }, 200);
+      });
+    }
+
+    // 将所有函数挂载到 window
+    window.selectGroup = selectGroup;
+    window.addGroupScore = addGroupScore;
+    window.randomPickGroupMember = randomPickGroupMember;
+    window.selectStudent = selectStudent;
+    window.randomPick = randomPick;
+    window.addStudentScore = addStudentScore;
+    window.backToGroups = backToGroups;
+    window.backToMembers = backToMembers;
+
+    // 启动
+    init();
+  </script>
+</body>
+</html>
