@@ -75,8 +75,7 @@
       "target": [
         "nsis",
         "portable"
-      ],
-      "icon": "build/icon.ico"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -84,8 +83,6 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "班级积分系统",
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico",
       "deleteAppDataOnUninstall": false
     },
     "portable": {
