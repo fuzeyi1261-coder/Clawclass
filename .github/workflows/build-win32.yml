@@ -1,0 +1,61 @@
+name: Build Windows x86
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/build-win32.yml'
+      - 'package.json'
+      - 'src/**'
+      - 'electron/**'
+      - 'vite.config.ts'
+      - 'postcss.config.js'
+      - 'tailwind.config.js'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-win32:
+    name: Build Windows x86 (32-bit)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Vite
+        run: npm run build
+
+      - name: Build Electron x86
+        run: npm run dist -- --win --ia32
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x86-installer
+          path: |
+            release/*.exe
+            release/*.msi
+          retention-days: 30
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release/*.exe
+            release/*.msi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

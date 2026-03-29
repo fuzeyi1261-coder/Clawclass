@@ -11,6 +11,8 @@
     "electron:build": "node scripts/copy-electron.js",
     "dist": "npm run build && electron-builder",
     "dist:win": "npm run build && electron-builder --win",
+    "dist:win:x86": "npm run build && electron-builder --win --ia32",
+    "dist:win:x64": "npm run build && electron-builder --win --x64",
     "dist:mac": "npm run build && electron-builder --mac",
     "start:api": "node scripts/start-api-server.js",
     "test:api": "node scripts/test-api-server.js",
