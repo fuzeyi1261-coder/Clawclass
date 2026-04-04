@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 
-const API_BASE = 'http://localhost:3001';
+// 从 localStorage 获取 API 地址，没有则使用默认值（远程服务器）
+const getApiBase = () => localStorage.getItem('apiBase') || 'http://43.128.40.126:3001';
 
 // 检查 API 服务器是否可用
 async function checkApiServer(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE}/api/health`, {
+    const response = await fetch(`${getApiBase()}/api/health`, {
       method: 'GET',
       signal: AbortSignal.timeout(2000), // 2秒超时
     });
@@ -129,11 +130,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     console.log('API server available:', isApiAvailable);
 
     try {
+      const apiBase = getApiBase();
       const [studentsRes, groupsRes, rulesRes, settingsRes] = await Promise.all([
-        fetch(`${API_BASE}/api/students`),
-        fetch(`${API_BASE}/api/groups`),
-        fetch(`${API_BASE}/api/rules`),
-        fetch(`${API_BASE}/api/settings`),
+        fetch(`${apiBase}/api/students`),
+        fetch(`${apiBase}/api/groups`),
+        fetch(`${apiBase}/api/rules`),
+        fetch(`${apiBase}/api/settings`),
       ]);
 
       // 检查响应状态
@@ -159,7 +161,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   addStudent: async (student) => {
     try {
-      const res = await fetch(`${API_BASE}/api/students`, {
+      const res = await fetch(`${getApiBase()}/api/students`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(student),
@@ -173,7 +175,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   updateStudent: async (id, data) => {
     try {
-      const res = await fetch(`${API_BASE}/api/students/${id}`, {
+      const res = await fetch(`${getApiBase()}/api/students/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -189,7 +191,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   deleteStudent: async (id) => {
     try {
-      await fetch(`${API_BASE}/api/students/${id}`, { method: 'DELETE' });
+      await fetch(`${getApiBase()}/api/students/${id}`, { method: 'DELETE' });
       set((state) => ({
         students: state.students.filter((s) => s.id !== id),
       }));
@@ -200,7 +202,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   addGroup: async (group) => {
     try {
-      const res = await fetch(`${API_BASE}/api/groups`, {
+      const res = await fetch(`${getApiBase()}/api/groups`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(group),
@@ -214,7 +216,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   updateGroup: async (id, data) => {
     try {
-      const res = await fetch(`${API_BASE}/api/groups/${id}`, {
+      const res = await fetch(`${getApiBase()}/api/groups/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -230,7 +232,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   deleteGroup: async (id) => {
     try {
-      await fetch(`${API_BASE}/api/groups/${id}`, { method: 'DELETE' });
+      await fetch(`${getApiBase()}/api/groups/${id}`, { method: 'DELETE' });
       set((state) => ({
         groups: state.groups.filter((g) => g.id !== id),
       }));
@@ -243,7 +245,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { students, groups, addFloatingScore } = get();
 
     try {
-      const res = await fetch(`${API_BASE}/api/score/add`, {
+      const res = await fetch(`${getApiBase()}/api/score/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentId, groupId, value, reason }),
@@ -284,7 +286,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { students, groups, addFloatingScore } = get();
 
     try {
-      const res = await fetch(`${API_BASE}/api/score/subtract`, {
+      const res = await fetch(`${getApiBase()}/api/score/subtract`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentId, groupId, value, reason }),
@@ -323,7 +325,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   addRule: async (rule) => {
     try {
-      const res = await fetch(`${API_BASE}/api/rules`, {
+      const res = await fetch(`${getApiBase()}/api/rules`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(rule),
@@ -337,7 +339,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   updateRule: async (id, data) => {
     try {
-      const res = await fetch(`${API_BASE}/api/rules/${id}`, {
+      const res = await fetch(`${getApiBase()}/api/rules/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -353,7 +355,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   deleteRule: async (id) => {
     try {
-      await fetch(`${API_BASE}/api/rules/${id}`, { method: 'DELETE' });
+      await fetch(`${getApiBase()}/api/rules/${id}`, { method: 'DELETE' });
       set((state) => ({
         rules: state.rules.filter((r) => r.id !== id),
       }));
@@ -364,7 +366,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   updateSettings: async (settings) => {
     try {
-      const res = await fetch(`${API_BASE}/api/settings`, {
+      const res = await fetch(`${getApiBase()}/api/settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
@@ -391,69 +393,26 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   initializeClassData: async () => {
-    const { addGroup, addStudent, loadData } = get();
-
-    const groups = [
-      { id: '1', name: '一组', color: '#C084FC', lightColor: '#F3E8FF' },
-      { id: '2', name: '二组', color: '#60A5FA', lightColor: '#DBEAFE' },
-      { id: '3', name: '三组', color: '#4ADE80', lightColor: '#DCFCE7' },
-      { id: '4', name: '四组', color: '#FB923C', lightColor: '#FED7AA' },
-      { id: '5', name: '五组', color: '#FACC15', lightColor: '#FEF9C3' },
-      { id: '6', name: '六组', color: '#F87171', lightColor: '#FEE2E2' },
-    ];
-
-    const students = [
-      { id: '1', name: '朱子墨', groupId: '1', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '2', name: '刘家齐', groupId: '1', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '3', name: '黎敏中', groupId: '1', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '4', name: '刘祖恩', groupId: '1', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '5', name: '周玥希', groupId: '1', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '6', name: '王英哲', groupId: '1', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '7', name: '吴书帆', groupId: '2', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '8', name: '况寺琦', groupId: '2', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '9', name: '向梓轩', groupId: '2', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '10', name: '付泽宜', groupId: '2', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '11', name: '黄子轩', groupId: '2', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '12', name: '张乐水', groupId: '3', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '13', name: '涂钰晨', groupId: '3', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '14', name: '陈昱成', groupId: '3', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '15', name: '郑惜羽', groupId: '3', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '16', name: '王荣豪', groupId: '3', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '17', name: '张煜萱', groupId: '4', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '18', name: '计明恩', groupId: '4', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '19', name: '张锦宸', groupId: '4', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '20', name: '黎祯昊', groupId: '4', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '21', name: '孔令卓', groupId: '4', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '22', name: '谢逸橙', groupId: '5', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '23', name: '朱泓烨', groupId: '5', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '24', name: '邓泽人', groupId: '5', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '25', name: '张智依', groupId: '5', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '26', name: '周家瑞', groupId: '5', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '27', name: '袁艺', groupId: '5', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '28', name: '东昱瑾', groupId: '6', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '29', name: '宿煜然', groupId: '6', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '30', name: '刘雨辰', groupId: '6', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '31', name: '浮予佳', groupId: '6', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '32', name: '孙翌宸', groupId: '6', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-      { id: '33', name: '郑羽晴', groupId: '6', score: 0, weeklyScore: 0, createdAt: new Date().toISOString() },
-    ];
-
-    // 创建小组
-    for (const group of groups) {
-      await addGroup(group);
-    }
-
-    // 创建学生 - 使用 addStudent 方法以确保状态同步
-    for (const student of students) {
-      await addStudent({
-        name: student.name,
-        groupId: student.groupId,
-        createdAt: student.createdAt
+    try {
+      // 使用新的班级初始化API
+      const res = await fetch(`${getApiBase()}/api/class/init`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       });
-    }
 
-    // 重新加载数据以更新UI
-    await loadData();
+      if (!res.ok) {
+        throw new Error('初始化失败');
+      }
+
+      const data = await res.json();
+      console.log('班级数据初始化成功:', data);
+
+      // 重新加载数据以更新UI
+      await get().loadData();
+    } catch (error) {
+      console.error('初始化班级数据失败:', error);
+      throw error;
+    }
   },
 
   settleWeeklyScores: async () => {

@@ -60,8 +60,8 @@
       "id": "b4797227-3193-47d5-a6f9-23842e6d05ee",
       "name": "况寺琦",
       "groupId": "2",
-      "score": 1,
-      "weeklyScore": 1,
+      "score": -1,
+      "weeklyScore": -1,
       "createdAt": "2026-03-28T07:52:53.030Z"
     },
     {
@@ -786,6 +786,33 @@
       "reason": "",
       "type": "add",
       "createdAt": "2026-03-28T08:05:03.707Z"
+    },
+    {
+      "id": "314c58d2-6db8-43c3-86b8-738d3aa15b0f",
+      "studentId": "b4797227-3193-47d5-a6f9-23842e6d05ee",
+      "groupId": null,
+      "value": -2,
+      "reason": "",
+      "type": "subtract",
+      "createdAt": "2026-04-04T02:08:43.675Z"
+    },
+    {
+      "id": "93bcadda-cf12-42be-b7a8-a981e418c4b1",
+      "studentId": null,
+      "groupId": "2",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-04-04T02:08:45.202Z"
+    },
+    {
+      "id": "f5ee1c97-dca9-42df-b202-76299d7a518e",
+      "studentId": null,
+      "groupId": "6",
+      "value": 3,
+      "reason": "",
+      "type": "add",
+      "createdAt": "2026-04-04T02:08:51.697Z"
     }
   ],
   "rules": [

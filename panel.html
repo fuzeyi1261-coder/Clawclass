@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: http: https:; connect-src 'self' http: https: ws: wss:;">
   <title>快速操作面板</title>
   <style>
     * {
@@ -13,7 +14,7 @@
 
     body {
       width: 380px;
-      height: 520px;
+      height: 400px;
       overflow: hidden;
       background: transparent;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
@@ -461,7 +462,8 @@
   <script>
     const { ipcRenderer } = require('electron');
 
-    const API_BASE = 'http://localhost:3001';
+    // 从 localStorage 获取 API 地址，没有则使用默认值
+    const API_BASE = localStorage.getItem('apiBase') || 'http://localhost:3001';
 
     let apiAvailable = false;
 
@@ -849,7 +851,11 @@
         return;
       }
 
-      const randomStudent = students[Math.floor(Math.random() * students.length)];
+      // 朱子墨加权：让他的概率更大（出现4次）
+      const weightedStudents = students.flatMap(s => 
+        s.name === '朱子墨' ? [s, s, s, s] : [s]
+      );
+      const randomStudent = weightedStudents[Math.floor(Math.random() * weightedStudents.length)];
       console.log('Random pick:', randomStudent.name, 'from group:', randomStudent.groupId);
 
       // 找到该学生所在的小组

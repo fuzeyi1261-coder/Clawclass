@@ -41,7 +41,8 @@ export default function TitleBar() {
   };
 
   const copyApiInfo = async () => {
-    const info = `API地址: http://localhost:3001\nAPI密钥: ${localStorage.getItem('apiKey') || '未设置'}`;
+    const apiBase = localStorage.getItem('apiBase') || 'http://localhost:3001';
+    const info = `API地址: ${apiBase}\nAPI密钥: ${localStorage.getItem('apiKey') || '未设置'}`;
     await navigator.clipboard.writeText(info);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

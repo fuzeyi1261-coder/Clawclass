@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>遮罩</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .content {
+      text-align: center;
+      max-width: 600px;
+      padding: 20px;
+    }
+
+    .message {
+      font-size: 72px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .sub-message {
+      font-size: 36px;
+      color: #a0a0a0;
+      margin-bottom: 40px;
+    }
+
+    .timer {
+      font-size: 120px;
+      font-weight: 700;
+      color: #e94560;
+      text-shadow: 0 0 40px rgba(233, 69, 96, 0.5);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 二维码区域 */
+    .qrcode-section {
+      margin-top: 40px;
+    }
+
+    .qrcode-title {
+      font-size: 24px;
+      color: #a0a0a0;
+      margin-bottom: 20px;
+    }
+
+    .qrcode {
+      width: 200px;
+      height: 200px;
+      background: white;
+      border-radius: 16px;
+      padding: 10px;
+      margin: 0 auto;
+    }
+
+    .qrcode img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .qrcode-hint {
+      margin-top: 16px;
+      font-size: 18px;
+      color: #888;
+    }
+
+    /* 密码输入（备用） */
+    .password-section {
+      margin-top: 40px;
+    }
+
+    .password-input {
+      width: 300px;
+      padding: 16px 24px;
+      font-size: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      text-align: center;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .password-input:focus {
+      border-color: #e94560;
+      box-shadow: 0 0 20px rgba(233, 69, 96, 0.3);
+    }
+
+    .password-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .error-msg {
+      margin-top: 16px;
+      color: #e94560;
+      font-size: 18px;
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .success-icon {
+      font-size: 100px;
+      margin-bottom: 20px;
+    }
+
+    .unlocking {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 通用遮罩 -->
+  <div class="content" id="coverMode">
+    <div class="message" id="mainMessage">非上课时间</div>
+    <div class="sub-message" id="subMessage">扫码或输入密码解锁</div>
+    <div class="timer" id="timer">--:--</div>
+    
+    <!-- 二维码区域 -->
+    <div class="qrcode-section" id="qrcodeSection">
+      <div class="qrcode-title">扫码解锁</div>
+      <div class="qrcode" id="qrcodeBox">
+        <img id="qrcodeImg" src="" alt="二维码">
+      </div>
+      <div class="qrcode-hint" id="qrcodeHint">请使用教师账号扫码</div>
+    </div>
+    
+    <!-- 密码输入（备用） -->
+    <div class="password-section">
+      <input type="password" class="password-input" id="passwordInput" placeholder="或输入密码解锁" maxlength="20">
+      <div class="error-msg" id="errorMsg">密码错误，请重试</div>
+    </div>
+  </div>
+
+  <!-- 解锁成功提示 -->
+  <div class="content hidden" id="unlockSuccess">
+    <div class="success-icon">🔓</div>
+    <div class="message">已解锁</div>
+    <div class="sub-message">欢迎回来</div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    
+    // API地址（生产环境）
+    const API_BASE = 'http://43.128.40.126:3001';
+    // 本地开发
+    // const API_BASE = 'http://localhost:3001';
+    
+    let duration = 0;
+    let timer = null;
+    let endTime = null;
+    let currentToken = null;
+    let pollInterval = null;
+
+    // 生成唯一token
+    function generateToken() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    // 更新二维码
+    function updateQRCode() {
+      currentToken = generateToken();
+      const url = `http://mozi.zd2025.com/teacher?unlock=${currentToken}`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+      document.getElementById('qrcodeImg').src = qrUrl;
+    }
+
+    // 开始轮询解锁状态
+    function startPollUnlockStatus() {
+      if (pollInterval) clearInterval(pollInterval);
+      
+      pollInterval = setInterval(async () => {
+        if (!currentToken) return;
+        
+        try {
+          const res = await fetch(`${API_BASE}/api/unlock/${currentToken}`);
+          const data = await res.json();
+          
+          if (data.unlocked) {
+            clearInterval(pollInterval);
+            showUnlockSuccess();
+            
+            // 延迟一点再通知关闭
+            setTimeout(() => {
+              ipcRenderer.send('cover-unlock');
+            }, 1000);
+          }
+        } catch (e) {
+          console.error('轮询解锁状态失败:', e);
+        }
+      }, 2000); // 每2秒检查一次
+    }
+
+    // 显示解锁成功
+    function showUnlockSuccess() {
+      document.getElementById('coverMode').classList.add('hidden');
+      document.getElementById('unlockSuccess').classList.remove('hidden');
+      document.getElementById('unlockSuccess').classList.add('unlocking');
+    }
+
+    ipcRenderer.on('cover-show', (event, { message, subMessage, duration: dur }) => {
+      document.getElementById('coverMode').classList.remove('hidden');
+      document.getElementById('unlockSuccess').classList.add('hidden');
+      document.getElementById('mainMessage').textContent = message;
+      document.getElementById('subMessage').textContent = subMessage || '扫码或输入密码解锁';
+      document.getElementById('passwordInput').value = '';
+      document.getElementById('errorMsg').style.display = 'none';
+      
+      // 更新二维码
+      updateQRCode();
+      
+      // 开始轮询解锁状态
+      startPollUnlockStatus();
+      
+      if (dur > 0) {
+        duration = dur;
+        endTime = Date.now() + dur * 1000;
+        startTimer();
+      } else {
+        stopTimer();
+        document.getElementById('timer').textContent = '--:--';
+      }
+    });
+
+    ipcRenderer.on('cover-hide', () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    });
+
+    function startTimer() {
+      if (timer) clearInterval(timer);
+      
+      function update() {
+        const now = Date.now();
+        const remaining = Math.max(0, endTime - now);
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        
+        document.getElementById('timer').textContent = 
+          `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (remaining <= 0) {
+          stopTimer();
+          ipcRenderer.send('cover-hide');
+        }
+      }
+      
+      update();
+      timer = setInterval(update, 1000);
+    }
+
+    function stopTimer() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    // 密码验证
+    document.getElementById('passwordInput').addEventListener('keypress', async (e) => {
+      if (e.key === 'Enter') {
+        const password = e.target.value;
+        const result = await ipcRenderer.invoke('cover-verify-password', password);
+        
+        if (result.success) {
+          if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+          }
+          ipcRenderer.send('cover-unlock');
+        } else {
+          document.getElementById('errorMsg').style.display = 'block';
+          e.target.value = '';
+        }
+      }
+    });
+
+    // 初始化时生成二维码
+    updateQRCode();
+  </script>
+</body>
+</html>

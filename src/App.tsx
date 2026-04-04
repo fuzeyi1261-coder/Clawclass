@@ -7,6 +7,10 @@ import StudentManager from './components/StudentManager';
 import Settings from './components/Settings';
 import FloatingScore from './components/FloatingScore';
 import WeeklySettlement from './components/WeeklySettlement';
+import { CoverController } from './components/CoverController';
+
+// 检查是否为Electron环境
+const isElectron = typeof window !== 'undefined' && window.require !== undefined;
 
 type Tab = 'score' | 'ranking' | 'settlement' | 'students' | 'settings';
 
@@ -17,6 +21,28 @@ function App() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Electron IPC调用
+  const handleCoverShow = (message: string, subMessage?: string, duration?: number) => {
+    if (isElectron) {
+      const { ipcRenderer } = window.require('electron');
+      ipcRenderer.send('cover-show', { message, subMessage, duration });
+    }
+  };
+
+  const handleCoverHide = () => {
+    if (isElectron) {
+      const { ipcRenderer } = window.require('electron');
+      ipcRenderer.send('cover-hide');
+    }
+  };
+
+  const handleCoverHomework = (homeworks: Array<{ subject: string; content: string }>) => {
+    if (isElectron) {
+      const { ipcRenderer } = window.require('electron');
+      ipcRenderer.send('cover-homework', homeworks);
+    }
+  };
 
   return (
     <div className="h-full flex flex-col bg-bg-primary rounded-2xl overflow-hidden shadow-2xl border border-border">
@@ -69,6 +95,15 @@ function App() {
       {floatingScores.map((score) => (
         <FloatingScore key={score.id} {...score} />
       ))}
+
+      {/* 遮罩控制器（仅Electron环境） */}
+      {isElectron && (
+        <CoverController
+          onCoverShow={handleCoverShow}
+          onCoverHide={handleCoverHide}
+          onCoverHomework={handleCoverHomework}
+        />
+      )}
     </div>
   );
 }

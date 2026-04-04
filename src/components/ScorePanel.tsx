@@ -75,8 +75,13 @@ export default function ScorePanel() {
 
   const handleRandomPick = () => {
     if (students.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * students.length);
-    const randomStudent = students[randomIndex];
+    
+    // 朱子墨加权：让他的概率更大（出现4次）
+    const weightedStudents = students.flatMap(s => 
+      s.name === '朱子墨' ? [s, s, s, s] : [s]
+    );
+    const randomIndex = Math.floor(Math.random() * weightedStudents.length);
+    const randomStudent = weightedStudents[randomIndex];
     setSelectedStudent(randomStudent);
     setSelectedGroup(groups.find(g => g.id === randomStudent.groupId) || null);
   };

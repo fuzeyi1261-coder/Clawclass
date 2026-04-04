@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useAppStore, ScoreRule } from '../store/appStore';
-import { Copy, Check, Plus, Trash2, Edit2, X, ExternalLink, RefreshCw } from 'lucide-react';
+import { Copy, Check, Plus, Trash2, Edit2, X, ExternalLink, RefreshCw, Monitor, MonitorOff } from 'lucide-react';
+import { useScheduleStore } from '../store/scheduleStore';
 
 const RULE_COLORS = ['#10B981', '#F59E0B', '#6366F1', '#8B5CF6', '#EF4444', '#F97316', '#06B6D4', '#84CC16'];
 
+// 检查是否为Electron环境
+const isElectron = typeof window !== 'undefined' && window.require !== undefined;
+
 export default function Settings() {
-  const { rules, settings, updateSettings, addRule, updateRule, deleteRule, initializeClassData, students, groups } = useAppStore();
-  const [activeSection, setActiveSection] = useState<'api' | 'rules'>('api');
+  const { rules, settings, updateSettings, addRule, updateRule, deleteRule, initializeClassData, students, groups, loadData } = useAppStore();
+  const { coverConfig, setCoverConfig, loadSchedule } = useScheduleStore();
+  const [activeSection, setActiveSection] = useState<'api' | 'rules' | 'cover'>('api');
   const [copied, setCopied] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState(settings.webhookUrl || '');
+  const [apiBase, setApiBase] = useState(localStorage.getItem('apiBase') || 'http://43.128.40.126:3001');
   const [showRuleModal, setShowRuleModal] = useState(false);
   const [editingRule, setEditingRule] = useState<ScoreRule | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -27,7 +33,7 @@ export default function Settings() {
   };
 
   const handleInitializeData = async () => {
-    if (confirm('确定要初始化班级数据吗？这将添加6个小组和33名学生。\n注意: 如果数据已存在,将跳过已存在的项目。')) {
+    if (confirm('确定要初始化班级数据吗？这将添加6个小组和33名学生到服务器。')) {
       setIsInitializing(true);
       try {
         await initializeClassData();
@@ -38,6 +44,25 @@ export default function Settings() {
       } finally {
         setIsInitializing(false);
       }
+    }
+  };
+
+  // 手动测试遮罩
+  const testCover = () => {
+    if (isElectron) {
+      const { ipcRenderer } = window.require('electron');
+      ipcRenderer.send('cover-show', { 
+        message: '测试遮罩', 
+        subMessage: '密码: mozi806', 
+        duration: 0 
+      });
+    }
+  };
+
+  const hideCover = () => {
+    if (isElectron) {
+      const { ipcRenderer } = window.require('electron');
+      ipcRenderer.send('cover-hide');
     }
   };
 
@@ -82,6 +107,18 @@ export default function Settings() {
         >
           加分规则
         </button>
+        {isElectron && (
+          <button
+            onClick={() => setActiveSection('cover')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+              activeSection === 'cover'
+                ? 'bg-primary text-white'
+                : 'bg-bg-card text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            遮罩设置
+          </button>
+        )}
       </div>
 
       {/* API设置 */}
@@ -93,12 +130,17 @@ export default function Settings() {
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                value="http://localhost:3001"
-                readOnly
+                value={apiBase}
+                onChange={(e) => setApiBase(e.target.value)}
+                onBlur={() => {
+                  localStorage.setItem('apiBase', apiBase);
+                  loadData();
+                }}
                 className="flex-1 h-10 px-3 bg-bg-secondary border border-border rounded-lg text-sm text-text-primary"
+                placeholder="http://你的服务器IP:3000"
               />
               <a
-                href="http://localhost:3001/api/students"
+                href={`${apiBase}/api/students`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="h-10 px-3 flex items-center gap-1 bg-bg-elevated text-text-secondary rounded-lg hover:text-primary transition-colors"
@@ -106,6 +148,9 @@ export default function Settings() {
                 <ExternalLink size={16} />
               </a>
             </div>
+            <p className="text-xs text-text-muted mt-2">
+              填入你的云服务器地址，如: http://123.456.789.0:3000
+            </p>
           </div>
 
           {/* API Key */}
@@ -177,6 +222,111 @@ export default function Settings() {
                 <span className="text-text-secondary">/api/ranking</span>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 遮罩设置 */}
+      {activeSection === 'cover' && isElectron && (
+        <div className="space-y-4 overflow-y-auto">
+          <div className="p-4 bg-bg-card rounded-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Monitor size={24} className="text-primary" />
+                <div>
+                  <p className="text-sm font-medium text-text-primary">遮罩模式</p>
+                  <p className="text-xs text-text-muted">非上课时间显示全屏遮罩</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setCoverConfig({ enabled: !coverConfig.enabled })}
+                className={`w-12 h-6 rounded-full transition-colors relative ${
+                  coverConfig.enabled ? 'bg-primary' : 'bg-bg-secondary'
+                }`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                  coverConfig.enabled ? 'translate-x-7' : 'translate-x-1'
+                }`} />
+              </button>
+            </div>
+          </div>
+
+          <div className="p-4 bg-bg-card rounded-xl">
+            <label className="text-xs text-text-muted mb-2 block">解锁密码</label>
+            <input
+              type="password"
+              value={coverConfig.password}
+              onChange={(e) => setCoverConfig({ password: e.target.value })}
+              className="w-full h-10 px-3 bg-bg-secondary border border-border rounded-lg text-sm text-text-primary font-mono focus:outline-none focus:border-primary"
+              placeholder="输入解锁密码"
+            />
+            <p className="text-xs text-text-muted mt-2">
+              默认密码: mozi806
+            </p>
+          </div>
+
+          <div className="p-4 bg-bg-card rounded-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Monitor size={20} className="text-text-muted" />
+                <p className="text-sm text-text-primary">显示下一节课信息</p>
+              </div>
+              <button
+                onClick={() => setCoverConfig({ nextClassInfo: !coverConfig.nextClassInfo })}
+                className={`w-10 h-5 rounded-full transition-colors relative ${
+                  coverConfig.nextClassInfo ? 'bg-primary' : 'bg-bg-secondary'
+                }`}
+              >
+                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                  coverConfig.nextClassInfo ? 'translate-x-5' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Monitor size={20} className="text-text-muted" />
+                <p className="text-sm text-text-primary">显示作业内容</p>
+              </div>
+              <button
+                onClick={() => setCoverConfig({ homeworkDisplay: !coverConfig.homeworkDisplay })}
+                className={`w-10 h-5 rounded-full transition-colors relative ${
+                  coverConfig.homeworkDisplay ? 'bg-primary' : 'bg-bg-secondary'
+                }`}
+              >
+                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                  coverConfig.homeworkDisplay ? 'translate-x-5' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
+          </div>
+
+          <div className="p-4 bg-bg-card rounded-xl">
+            <p className="text-xs text-text-muted mb-3">测试遮罩</p>
+            <div className="flex gap-2">
+              <button
+                onClick={testCover}
+                className="flex-1 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary-hover transition-colors"
+              >
+                显示遮罩
+              </button>
+              <button
+                onClick={hideCover}
+                className="flex-1 py-2 bg-bg-secondary text-text-primary rounded-lg text-sm hover:bg-bg-elevated transition-colors"
+              >
+                隐藏遮罩
+              </button>
+            </div>
+          </div>
+
+          <div className="p-4 bg-bg-card rounded-xl">
+            <p className="text-xs text-text-muted mb-3">加载课表</p>
+            <button
+              onClick={loadSchedule}
+              className="w-full py-2 bg-bg-secondary text-text-primary rounded-lg text-sm hover:bg-bg-elevated transition-colors"
+            >
+              从服务器同步课表
+            </button>
           </div>
         </div>
       )}

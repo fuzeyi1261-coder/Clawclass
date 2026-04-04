@@ -18,6 +18,7 @@ export default defineConfig({
         main: path.resolve(__dirname, 'index.html'),
         float: path.resolve(__dirname, 'float.html'),
         panel: path.resolve(__dirname, 'panel.html'),
+        cover: path.resolve(__dirname, 'cover.html'),
       },
       output: {
         entryFileNames: '[name].js',
@@ -34,5 +35,8 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    headers: {
+      'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: data: ws: wss:; connect-src 'self' http: https: ws: wss:; img-src 'self' data: http: https:; style-src 'self' 'unsafe-inline' http: https:;",
+    },
   },
 });

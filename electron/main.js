@@ -3,22 +3,56 @@ const path = require('path');
 const { fork } = require('child_process');
 
 let mainWindow = null;
-let floatWindow = null;
+let floatLeftWindow = null;  // 左侧悬浮球
+let floatRightWindow = null; // 右侧悬浮球
 let panelWindow = null;
+let coverWindow = null;       // 全屏遮罩窗口
 let tray = null;
 let apiServer = null;
+let isCoverModeActive = false;
 const isDev = process.env.NODE_ENV !== 'production' && !app.isPackaged;
 
-// 创建悬浮球窗口
-function createFloatWindow() {
-  const floatSize = 60;
-  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+// 悬浮球配置
+const FLOAT_SIZE = 50;  // 正方形大小
+const FLOAT_MARGIN = 10; // 通用间距
+const FLOAT_MARGIN_LEFT = 100; // 左侧悬浮球距离屏幕边缘
+const FLOAT_MARGIN_RIGHT = 8;  // 右侧悬浮球距离屏幕边缘
+const PANEL_WIDTH = 380;
+const PANEL_HEIGHT = 400;
+const FLOAT_Y_OFFSET = 100; // 距离屏幕底部的距离（往上一点点）
 
-  floatWindow = new BrowserWindow({
-    width: floatSize,
-    height: floatSize,
-    x: screenWidth - floatSize - 20,
-    y: screenHeight / 2 - floatSize / 2,
+// 创建悬浮球窗口（两个）
+function createFloatWindows() {
+  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+  const floatY = screenHeight - FLOAT_MARGIN - FLOAT_SIZE - FLOAT_Y_OFFSET;
+
+  // 左侧悬浮球（右侧圆角）
+  floatLeftWindow = new BrowserWindow({
+    width: FLOAT_SIZE,
+    height: FLOAT_SIZE,
+    x: FLOAT_MARGIN,
+    y: floatY,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    skipTaskbar: true,
+    alwaysOnTop: true,
+    focusable: true,
+    hasShadow: false,
+    backgroundColor: '#00000000',
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
+
+  // 右侧悬浮球（左侧圆角）
+  floatRightWindow = new BrowserWindow({
+    width: FLOAT_SIZE,
+    height: FLOAT_SIZE,
+    x: screenWidth - FLOAT_MARGIN_RIGHT - FLOAT_SIZE,
+    y: floatY,
     frame: false,
     transparent: true,
     resizable: false,
@@ -35,16 +69,28 @@ function createFloatWindow() {
   });
 
   if (isDev) {
-    floatWindow.loadURL('http://localhost:5173/float.html');
+    floatLeftWindow.loadURL('http://localhost:5173/float.html?side=left');
+    floatRightWindow.loadURL('http://localhost:5173/float.html?side=right');
   } else {
-    floatWindow.loadFile(path.join(__dirname, '../dist/float.html'));
+    floatLeftWindow.loadFile(path.join(__dirname, '../dist/float.html'));
+    floatRightWindow.loadFile(path.join(__dirname, '../dist/float.html'));
   }
 
-  floatWindow.once('ready-to-show', () => {
-    floatWindow.show();
+  floatLeftWindow.once('ready-to-show', () => {
+    floatLeftWindow.show();
   });
 
-  floatWindow.on('close', (event) => {
+  floatRightWindow.once('ready-to-show', () => {
+    floatRightWindow.show();
+  });
+
+  floatLeftWindow.on('close', (event) => {
+    if (!app.isQuitting) {
+      event.preventDefault();
+    }
+  });
+
+  floatRightWindow.on('close', (event) => {
     if (!app.isQuitting) {
       event.preventDefault();
     }
@@ -54,8 +100,8 @@ function createFloatWindow() {
 // 创建快速操作面板窗口
 function createPanelWindow() {
   panelWindow = new BrowserWindow({
-    width: 380,
-    height: 520,
+    width: PANEL_WIDTH,
+    height: PANEL_HEIGHT,
     frame: false,
     transparent: true,
     resizable: false,
@@ -71,7 +117,6 @@ function createPanelWindow() {
 
   if (isDev) {
     panelWindow.loadURL('http://localhost:5173/panel.html');
-    panelWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
     panelWindow.loadFile(path.join(__dirname, '../dist/panel.html'));
   }
@@ -86,6 +131,78 @@ function createPanelWindow() {
       panelWindow.hide();
     }
   });
+}
+
+// 创建全屏遮罩窗口
+function createCoverWindow() {
+  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().bounds;
+
+  coverWindow = new BrowserWindow({
+    width: screenWidth,
+    height: screenHeight,
+    x: 0,
+    y: 0,
+    frame: false,
+    transparent: false,
+    resizable: false,
+    movable: false,
+    skipTaskbar: true,
+    alwaysOnTop: true,
+    fullscreen: true,
+    show: false,
+    backgroundColor: '#1a1a2e',
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
+
+  if (isDev) {
+    coverWindow.loadURL('http://localhost:5173/cover.html');
+  } else {
+    coverWindow.loadFile(path.join(__dirname, '../dist/cover.html'));
+  }
+
+  coverWindow.on('close', (event) => {
+    if (isCoverModeActive) {
+      event.preventDefault();
+    }
+  });
+
+  coverWindow.on('closed', () => {
+    coverWindow = null;
+  });
+}
+
+// 显示/隐藏遮罩窗口
+function showCoverWindow(message, subMessage = '', duration = 0) {
+  if (!coverWindow) return;
+  
+  coverWindow.webContents.send('cover-show', { message, subMessage, duration });
+  coverWindow.show();
+  coverWindow.focus();
+  isCoverModeActive = true;
+}
+
+function hideCoverWindow() {
+  if (!coverWindow) return;
+  
+  // 先退出全屏模式
+  if (coverWindow.isFullScreen()) {
+    coverWindow.setFullScreen(false);
+  }
+  
+  // 延迟一点再隐藏，确保退出全屏完成
+  setTimeout(() => {
+    coverWindow.hide();
+    isCoverModeActive = false;
+    
+    // 遮罩关闭后，确保主窗口可见
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  }, 100);
 }
 
 // 创建主窗口
@@ -256,30 +373,49 @@ function setupIpc() {
     return mainWindow ? mainWindow.isMaximized() : false;
   });
 
-  // 悬浮球相关
-  ipcMain.on('float-click', () => {
-    console.log('Float click received');
-    console.log('panelWindow exists:', !!panelWindow);
-    console.log('floatWindow exists:', !!floatWindow);
+  // 悬浮球相关 - 根据点击的悬浮球决定弹窗位置
+  ipcMain.on('float-click', (event, side) => {
+    console.log('Float click received from:', side);
 
-    if (panelWindow && floatWindow) {
-      const [floatX, floatY] = floatWindow.getPosition();
-      const floatSize = 60;
+    if (!panelWindow) return;
 
-      console.log('Float position:', floatX, floatY);
-      console.log('Panel position:', floatX + floatSize + 10, floatY);
-
-      // 在悬浮球右侧显示面板
-      panelWindow.setPosition(floatX + floatSize + 10, floatY);
-      panelWindow.show();
-      console.log('Panel shown');
-
-      // 发送 panel-show 事件给面板
-      if (panelWindow.webContents) {
-        panelWindow.webContents.send('panel-show');
-      }
-      panelWindow.focus();
+    // 隐藏已显示的弹窗
+    if (panelWindow.isVisible()) {
+      panelWindow.hide();
+      return;
     }
+
+    const floatY = screen.getPrimaryDisplay().workAreaSize.height - FLOAT_MARGIN - FLOAT_SIZE - FLOAT_Y_OFFSET;
+    let panelX, panelY;
+
+    if (side === 'left') {
+      // 左侧按钮：弹窗在左边打开，底部对齐
+      // 弹窗右侧与按钮左侧对齐
+      panelX = FLOAT_MARGIN_LEFT + FLOAT_SIZE + 10;
+      panelY = floatY + FLOAT_SIZE - PANEL_HEIGHT; // 底部对齐
+    } else {
+      // 右侧按钮：弹窗在右边打开，底部对齐
+      // 弹窗左侧与按钮右侧对齐
+      const screenWidth = screen.getPrimaryDisplay().workAreaSize.width;
+      panelX = screenWidth - FLOAT_MARGIN_RIGHT - FLOAT_SIZE - PANEL_WIDTH - 10;
+      panelY = floatY + FLOAT_SIZE - PANEL_HEIGHT; // 底部对齐
+    }
+
+    // 确保弹窗不会超出屏幕
+    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+    panelX = Math.max(0, Math.min(panelX, screenWidth - PANEL_WIDTH));
+    panelY = Math.max(0, Math.min(panelY, screenHeight - PANEL_HEIGHT));
+
+    console.log('Panel will show at:', panelX, panelY);
+
+    panelWindow.setPosition(panelX, panelY);
+    panelWindow.show();
+
+    // 发送 panel-show 事件给面板
+    if (panelWindow.webContents) {
+      panelWindow.webContents.send('panel-show');
+    }
+    panelWindow.focus();
   });
 
   ipcMain.on('panel-hide', () => {
@@ -300,6 +436,37 @@ function setupIpc() {
       mainWindow.setPosition(currentX + x, currentY + y);
     }
   });
+
+  // 遮罩窗口控制
+  ipcMain.on('cover-show', (event, { message, subMessage, duration }) => {
+    showCoverWindow(message, subMessage, duration);
+  });
+
+  ipcMain.on('cover-hide', () => {
+    hideCoverWindow();
+  });
+
+  ipcMain.on('cover-homework', (event, homeworks) => {
+    if (coverWindow) {
+      coverWindow.webContents.send('cover-homework', homeworks);
+      coverWindow.show();
+      coverWindow.focus();
+      isCoverModeActive = true;
+    }
+  });
+
+  ipcMain.handle('cover-verify-password', (event, password) => {
+    // 密码验证：mozi806
+    if (password === 'mozi806') {
+      hideCoverWindow();
+      return { success: true };
+    }
+    return { success: false, error: '密码错误' };
+  });
+
+  ipcMain.on('cover-unlock', () => {
+    hideCoverWindow();
+  });
 }
 
 // 注册全局快捷键
@@ -319,8 +486,9 @@ function registerShortcuts() {
 
 // 应用准备就绪
 app.whenReady().then(() => {
-  createFloatWindow();
+  createFloatWindows();
   createPanelWindow();
+  createCoverWindow();
   createWindow();
   createTray();
   setupIpc();
@@ -329,7 +497,7 @@ app.whenReady().then(() => {
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createFloatWindow();
+      createFloatWindows();
       createPanelWindow();
       createWindow();
     } else if (mainWindow) {
@@ -344,8 +512,11 @@ app.on('will-quit', () => {
   if (apiServer) {
     apiServer.kill();
   }
-  if (floatWindow && !floatWindow.isDestroyed()) {
-    floatWindow.close();
+  if (floatLeftWindow && !floatLeftWindow.isDestroyed()) {
+    floatLeftWindow.close();
+  }
+  if (floatRightWindow && !floatRightWindow.isDestroyed()) {
+    floatRightWindow.close();
   }
   if (panelWindow && !panelWindow.isDestroyed()) {
     panelWindow.close();
