@@ -14,7 +14,7 @@ export default function Settings() {
   const [activeSection, setActiveSection] = useState<'api' | 'rules' | 'cover'>('api');
   const [copied, setCopied] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState(settings.webhookUrl || '');
-  const [apiBase, setApiBase] = useState(localStorage.getItem('apiBase') || 'http://43.128.40.126:3001');
+  const [apiBase, setApiBase] = useState(localStorage.getItem('apiBase') || 'http://mozi.zd2025.com:3001');
   const [showRuleModal, setShowRuleModal] = useState(false);
   const [editingRule, setEditingRule] = useState<ScoreRule | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -341,6 +341,18 @@ export default function Settings() {
           <RefreshCw size={18} className={isInitializing ? 'animate-spin' : ''} />
           <span>{isInitializing ? '初始化中...' : '初始化班级数据'}</span>
         </button>
+        
+        {/* 备案信息 */}
+        <div className="mt-4 text-center">
+          <a
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            rel="nofollow"
+            className="text-xs text-text-muted hover:text-primary transition-colors"
+          >
+            鄂ICP备2025093833号
+          </a>
+        </div>
       </div>
 
       {/* 加分规则 */}

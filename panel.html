@@ -462,10 +462,50 @@
   <script>
     const { ipcRenderer } = require('electron');
 
-    // 从 localStorage 获取 API 地址，没有则使用默认值
-    const API_BASE = localStorage.getItem('apiBase') || 'http://localhost:3001';
+    // API地址 - 使用网页版API服务器（3000端口）
+    const API_BASE = localStorage.getItem('apiBase') || 'http://mozi.zd2025.com:3000';
 
     let apiAvailable = false;
+    let authToken = null;  // 不再依赖教师端的token
+
+    // 服务账号 - 用于面板自动登录
+    const SERVICE_ACCOUNT = {
+      username: 'mozi806',
+      password: 'mozi806'
+    };
+
+    // 自动登录获取token
+    async function autoLogin() {
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(SERVICE_ACCOUNT)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          authToken = data.token;
+          console.log('Auto login successful, token obtained');
+          return true;
+        } else {
+          console.error('Auto login failed:', await response.text());
+          return false;
+        }
+      } catch (error) {
+        console.error('Auto login error:', error);
+        return false;
+      }
+    }
+
+    // 获取认证头
+    function getAuthHeaders() {
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      return headers;
+    }
 
     // 检查 API 服务器是否可用
     async function checkApiServer() {
@@ -476,6 +516,12 @@
         });
         apiAvailable = response.ok;
         console.log('API server available:', apiAvailable);
+
+        // 如果API可用，自动登录获取token
+        if (apiAvailable && !authToken) {
+          await autoLogin();
+        }
+
         return apiAvailable;
       } catch (error) {
         console.log('API server not available:', error);
@@ -529,7 +575,7 @@
       { id: '25', name: '张智依', groupId: '5', score: 0, weeklyScore: 0 },
       { id: '26', name: '周家瑞', groupId: '5', score: 0, weeklyScore: 0 },
       { id: '27', name: '袁艺', groupId: '5', score: 0, weeklyScore: 0 },
-      { id: '28', name: '东昱瑾', groupId: '6', score: 0, weeklyScore: 0 },
+      { id: '28', name: '陈昱瑾', groupId: '6', score: 0, weeklyScore: 0 },
       { id: '29', name: '宿煜然', groupId: '6', score: 0, weeklyScore: 0 },
       { id: '30', name: '刘雨辰', groupId: '6', score: 0, weeklyScore: 0 },
       { id: '31', name: '浮予佳', groupId: '6', score: 0, weeklyScore: 0 },
@@ -641,33 +687,38 @@
 
       try {
         if (apiAvailable) {
-          // 从API加载数据
-          const [studentsRes, groupsRes] = await Promise.all([
-            fetch(`${API_BASE}/api/students`),
-            fetch(`${API_BASE}/api/groups`)
-          ]);
-
-          if (!studentsRes.ok || !groupsRes.ok) {
+          // 从API加载数据 - 使用 /api/class 接口获取完整数据
+          const response = await fetch(`${API_BASE}/api/class`);
+          
+          if (!response.ok) {
             throw new Error('API request failed');
           }
 
-          const apiStudents = await studentsRes.json();
-          const apiGroups = await groupsRes.json();
+          const data = await response.json();
+          const apiStudents = data.students || [];
+          const apiGroups = data.groups || [];
 
           console.log('API Students:', apiStudents.length);
           console.log('API Groups:', apiGroups.length);
-          console.log('Sample API student:', apiStudents[0]);
-          console.log('Sample API group:', apiGroups[0]);
+          if (apiStudents.length > 0) {
+            console.log('Sample API student:', apiStudents[0]);
+          }
+          if (apiGroups.length > 0) {
+            console.log('Sample API group:', apiGroups[0]);
+          }
 
           // 如果API中有数据,使用API数据,否则使用硬编码数据
           if (apiGroups.length > 0) {
             // 使用API返回的组数据，并合并fixedGroups的样式信息
+            // 确保 id 转换为数字类型
             groups = apiGroups.map((g) => {
               const fixedGroup = fixedGroups.find(fg => fg.name === g.name);
               return {
                 ...g,
-                color: fixedGroup ? fixedGroup.color : g.color,
-                lightColor: fixedGroup ? fixedGroup.lightColor : g.lightColor
+                id: Number(g.id),  // 确保 id 是数字
+                score: g.total_score || 0,  // 服务器返回 total_score
+                color: fixedGroup ? fixedGroup.color : (g.color || '#667eea'),
+                lightColor: fixedGroup ? fixedGroup.lightColor : (g.lightColor || '#e0e7ff')
               };
             });
           } else {
@@ -675,7 +726,15 @@
           }
 
           if (apiStudents.length > 0) {
-            students = apiStudents;
+            // 统一字段名：服务器返回 total_score，前端使用 score
+            // 确保 id 和 groupId 转换为数字类型
+            students = apiStudents.map(s => ({
+              ...s,
+              id: Number(s.id),  // 确保 id 是数字
+              groupId: Number(s.group_id),  // 转换 group_id -> groupId 并确保是数字
+              score: s.total_score || 0,  // 服务器返回 total_score，前端使用 score
+              weeklyScore: 0  // 初始化本周积分
+            }));
           } else {
             students = [...fixedStudents];
           }
@@ -690,8 +749,8 @@
 
         // 验证数据
         groups.forEach(group => {
-          const members = students.filter(s => s.groupId === group.id);
-          console.log(`${group.name}: ${members.length} members`, members.map(m => m.name));
+          const members = students.filter(s => Number(s.groupId) === Number(group.id));
+          console.log(`${group.name} (id=${group.id}): ${members.length} members`, members.map(m => ({ name: m.name, groupId: m.groupId })));
         });
 
         renderGroups();
@@ -707,11 +766,23 @@
     // 渲染小组卡片
     function renderGroups() {
       const groupCards = document.getElementById('groupCards');
-      groupCards.innerHTML = groups.map(group => {
-        const groupMembers = students.filter(s => s.groupId === group.id);
+      console.log('[renderGroups] Starting render, groups:', groups.length, 'students:', students.length);
+      
+      if (groups.length === 0) {
+        console.error('[renderGroups] No groups to render!');
+        groupCards.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">暂无小组数据</div>';
+        return;
+      }
+      
+      const html = groups.map(group => {
+        // 过滤小组成员，确保类型一致
+        const groupIdNum = Number(group.id);
+        const groupMembers = students.filter(s => Number(s.groupId) === groupIdNum);
+
         // 计算小组总分
         const groupTotalScore = groupMembers.reduce((sum, s) => sum + (s.score || 0), 0);
-        console.log(`Group ${group.name}:`, groupMembers.length, 'members', groupMembers.map(m => m.name), `Total: ${groupTotalScore}`);
+        console.log(`[renderGroups] Group "${group.name}" (id=${group.id}): ${groupMembers.length} members, score: ${groupTotalScore}`);
+        
         return `
           <div class="group-card" style="background-color: ${group.lightColor}40;">
             <button class="group-card-header" style="width: 100%; background: none; border: none; padding: 0; text-align: left; cursor: pointer;" onclick="selectGroup('${group.id}')">
@@ -728,12 +799,18 @@
         `;
       }).join('');
 
-      console.log('Groups rendered, groupCards innerHTML length:', groupCards.innerHTML.length);
+      groupCards.innerHTML = html;
+      console.log('[renderGroups] Rendered', groups.length, 'group cards, HTML length:', groupCards.innerHTML.length);
     }
 
     // 选择小组
     function selectGroup(groupId) {
-      selectedGroup = groups.find(g => g.id === groupId);
+      const groupIdNum = Number(groupId);
+      selectedGroup = groups.find(g => Number(g.id) === groupIdNum);
+      if (!selectedGroup) {
+        console.error('Group not found:', groupId);
+        return;
+      }
       selectedStudent = null;
 
       document.getElementById('selectedGroup').classList.remove('hidden');
@@ -743,7 +820,9 @@
       document.getElementById('groupDot').style.backgroundColor = selectedGroup.color;
       document.getElementById('groupName').textContent = selectedGroup.name;
 
-      const groupMembers = students.filter(s => s.groupId === selectedGroup.id);
+      const groupIdToFilter = Number(selectedGroup.id);
+      const groupMembers = students.filter(s => Number(s.groupId) === groupIdToFilter);
+      console.log(`[selectGroup] Filtering students with groupId=${groupIdToFilter}, found ${groupMembers.length} members`);
       document.getElementById('memberCount').textContent = `(${groupMembers.length}人)`;
 
       // 显示返回按钮
@@ -756,7 +835,7 @@
     // 渲染组内随机抽人
     function renderGroupRandomPicker() {
       const container = document.getElementById('groupRandomContainer');
-      const groupMembers = students.filter(s => s.groupId === selectedGroup.id);
+      const groupMembers = students.filter(s => Number(s.groupId) === Number(selectedGroup.id));
       
       if (groupMembers.length > 0) {
         container.innerHTML = `
@@ -773,7 +852,7 @@
 
     // 组内随机抽人
     function randomPickGroupMember() {
-      const groupMembers = students.filter(s => s.groupId === selectedGroup.id);
+      const groupMembers = students.filter(s => Number(s.groupId) === Number(selectedGroup.id));
       if (groupMembers.length === 0) return;
 
       const randomStudent = groupMembers[Math.floor(Math.random() * groupMembers.length)];
@@ -786,7 +865,7 @@
     // 渲染组员列表
     function renderMembers() {
       const memberList = document.getElementById('memberList');
-      const groupMembers = students.filter(s => s.groupId === selectedGroup.id);
+      const groupMembers = students.filter(s => Number(s.groupId) === Number(selectedGroup.id));
 
       console.log('Rendering members for group:', selectedGroup.name, 'Count:', groupMembers.length);
 
@@ -805,7 +884,8 @@
 
     // 选择学生
     function selectStudent(studentId) {
-      selectedStudent = students.find(s => s.id === studentId);
+      const studentIdNum = Number(studentId);
+      selectedStudent = students.find(s => Number(s.id) === studentIdNum);
       if (!selectedStudent) return;
 
       document.getElementById('selectedStudent').classList.remove('hidden');
@@ -859,7 +939,7 @@
       console.log('Random pick:', randomStudent.name, 'from group:', randomStudent.groupId);
 
       // 找到该学生所在的小组
-      const group = groups.find(g => g.id === randomStudent.groupId);
+      const group = groups.find(g => Number(g.id) === Number(randomStudent.groupId));
       if (group) {
         selectGroup(group.id);
         selectStudent(randomStudent.id);
@@ -872,9 +952,11 @@
     // 小组加分 - 给组内每个成员加分
     async function addGroupScore(groupId, value) {
       try {
-        const groupMembers = students.filter(s => s.groupId === groupId);
+        const groupIdNum = Number(groupId);
+        const groupMembers = students.filter(s => Number(s.groupId) === groupIdNum);
         console.log(`[addGroupScore] Adding ${value} to ${groupMembers.length} members in group ${groupId}`);
-        console.log(`[addGroupScore] Group members:`, groupMembers.map(m => ({ id: m.id, name: m.name })));
+        console.log(`[addGroupScore] Group members:`, groupMembers.map(m => ({ id: m.id, type: typeof m.id, name: m.name, groupId: m.groupId })));
+        console.log(`[addGroupScore] All students:`, students.map(s => ({ id: s.id, type: typeof s.id, groupId: s.groupId })));
 
         if (groupMembers.length === 0) {
           alert('该小组没有成员');
@@ -886,16 +968,18 @@
 
         // 为每个组员加/减分
         if (apiAvailable) {
-          // API可用时，批量调用API
-          const endpoint = value > 0 ? '/api/score/add' : '/api/score/subtract';
+          // token已经自动获取，不需要检查
+          // 使用 /api/scores/student 端点（需要认证）
+          const endpoint = '/api/scores/student';
           console.log(`[addGroupScore] API available, calling ${endpoint}`);
 
           for (const member of groupMembers) {
             try {
+              console.log(`[addGroupScore] Calling API for member:`, { id: member.id, type: typeof member.id, name: member.name });
               const response = await fetch(`${API_BASE}${endpoint}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ studentId: member.id, value: Math.abs(value) })
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ student_id: Number(member.id), score: value })
               });
 
               if (response.ok) {
@@ -903,7 +987,8 @@
                 console.log(`[addGroupScore] ✓ Added ${value} to ${member.name} (ID: ${member.id})`);
               } else {
                 failCount++;
-                console.error(`[addGroupScore] ✗ Failed to add ${value} to ${member.name}:`, await response.text());
+                const errText = await response.text();
+                console.error(`[addGroupScore] ✗ Failed to add ${value} to ${member.name}:`, errText);
               }
             } catch (error) {
               failCount++;
@@ -926,7 +1011,7 @@
           console.log(`[addGroupScore] API not available, updating local data`);
 
           for (const member of groupMembers) {
-            const student = students.find(s => s.id === member.id);
+            const student = students.find(s => Number(s.id) === Number(member.id));
             if (student) {
               student.score = (student.score || 0) + value;
               student.weeklyScore = (student.weeklyScore || 0) + value;
@@ -959,9 +1044,11 @@
     // 学生加分
     async function addStudentScore(studentId, value) {
       try {
-        const student = students.find(s => s.id === studentId);
+        const studentIdNum = Number(studentId);
+        const student = students.find(s => Number(s.id) === studentIdNum);
         if (!student) {
-          console.error('[addStudentScore] Student not found:', studentId);
+          console.error('[addStudentScore] Student not found:', studentId, 'type:', typeof studentId);
+          console.error('[addStudentScore] Available students:', students.map(s => ({ id: s.id, type: typeof s.id })));
           alert('学生不存在');
           return;
         }
@@ -970,13 +1057,15 @@
         console.log(`[addStudentScore] Current scores - score: ${student.score}, weeklyScore: ${student.weeklyScore}`);
 
         if (apiAvailable) {
-          const endpoint = value > 0 ? '/api/score/add' : '/api/score/subtract';
+          // token已经自动获取，不需要检查
+          // 使用 /api/scores/student 端点（需要认证）
+          const endpoint = '/api/scores/student';
           console.log(`[addStudentScore] API available, calling ${endpoint}`);
 
           const response = await fetch(`${API_BASE}${endpoint}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ studentId, value: Math.abs(value) })
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ student_id: studentIdNum, score: value })
           });
 
           if (response.ok) {
@@ -1000,8 +1089,8 @@
         }
 
         // 更新当前选中的学生显示
-        if (selectedStudent && selectedStudent.id === studentId) {
-          const updatedStudent = students.find(s => s.id === studentId);
+        if (selectedStudent && Number(selectedStudent.id) === studentIdNum) {
+          const updatedStudent = students.find(s => Number(s.id) === studentIdNum);
           if (updatedStudent) {
             selectedStudent = updatedStudent;
             document.getElementById('studentWeekly').textContent = selectedStudent.weeklyScore || 0;
@@ -1118,5 +1207,10 @@
     // 启动
     init();
   </script>
+  
+  <!-- 备案信息 -->
+  <div style="position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 100;">
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow" style="color: rgba(255,255,255,0.4); font-size: 10px; text-decoration: none;">鄂ICP备2025093833号</a>
+  </div>
 </body>
 </html>

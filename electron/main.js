@@ -12,7 +12,7 @@ let apiServer = null;
 let isCoverModeActive = false;
 const isDev = process.env.NODE_ENV !== 'production' && !app.isPackaged;
 
-// 悬浮球配置
+  // 悬浮球配置
 const FLOAT_SIZE = 50;  // 正方形大小
 const FLOAT_MARGIN = 10; // 通用间距
 const FLOAT_MARGIN_LEFT = 100; // 左侧悬浮球距离屏幕边缘
@@ -41,11 +41,25 @@ function createFloatWindows() {
     hasShadow: false,
     backgroundColor: '#00000000',
     show: false,
+    movable: false,
+    fullscreenable: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
   });
+
+  // macOS: 限制在当前桌面
+  if (process.platform === 'darwin') {
+    floatLeftWindow.setVisibleOnAllWorkspaces(false);
+    floatLeftWindow.setWindowButtonVisibility(false);
+  }
+
+  // Windows: 设置为最高层级以保持在PPT等全屏应用上方
+  if (process.platform === 'win32') {
+    // 使用 screen-saver 层级，这是 Windows 上的最高层级
+    floatLeftWindow.setAlwaysOnTop(true, 'screen-saver');
+  }
 
   // 右侧悬浮球（左侧圆角）
   floatRightWindow = new BrowserWindow({
@@ -62,11 +76,24 @@ function createFloatWindows() {
     hasShadow: false,
     backgroundColor: '#00000000',
     show: false,
+    movable: false,
+    fullscreenable: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
   });
+
+  // macOS: 限制在当前桌面
+  if (process.platform === 'darwin') {
+    floatRightWindow.setVisibleOnAllWorkspaces(false);
+    floatRightWindow.setWindowButtonVisibility(false);
+  }
+
+  // Windows: 设置为最高层级以保持在PPT等全屏应用上方
+  if (process.platform === 'win32') {
+    floatRightWindow.setAlwaysOnTop(true, 'screen-saver');
+  }
 
   if (isDev) {
     floatLeftWindow.loadURL('http://localhost:5173/float.html?side=left');
@@ -78,10 +105,18 @@ function createFloatWindows() {
 
   floatLeftWindow.once('ready-to-show', () => {
     floatLeftWindow.show();
+    // Windows: 显示后再次设置置顶
+    if (process.platform === 'win32') {
+      floatLeftWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
   });
 
   floatRightWindow.once('ready-to-show', () => {
     floatRightWindow.show();
+    // Windows: 显示后再次设置置顶
+    if (process.platform === 'win32') {
+      floatRightWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
   });
 
   floatLeftWindow.on('close', (event) => {
@@ -114,6 +149,16 @@ function createPanelWindow() {
       contextIsolation: false,
     },
   });
+
+  // macOS: 限制在当前桌面
+  if (process.platform === 'darwin') {
+    panelWindow.setVisibleOnAllWorkspaces(false);
+  }
+
+  // Windows: 设置为最高层级以保持在PPT等全屏应用上方
+  if (process.platform === 'win32') {
+    panelWindow.setAlwaysOnTop(true, 'screen-saver');
+  }
 
   if (isDev) {
     panelWindow.loadURL('http://localhost:5173/panel.html');
@@ -148,7 +193,7 @@ function createCoverWindow() {
     movable: false,
     skipTaskbar: true,
     alwaysOnTop: true,
-    fullscreen: true,
+    fullscreenable: false, // 禁止全屏切换
     show: false,
     backgroundColor: '#1a1a2e',
     webPreferences: {
@@ -156,6 +201,16 @@ function createCoverWindow() {
       contextIsolation: false,
     },
   });
+
+  // macOS: 限制在当前桌面
+  if (process.platform === 'darwin') {
+    coverWindow.setVisibleOnAllWorkspaces(false);
+  }
+
+  // macOS: 设置为最高层级（仅在需要时激活）
+  if (process.platform === 'darwin') {
+    // 默认不设置为 screen-saver，只有在激活遮罩时才设置
+  }
 
   if (isDev) {
     coverWindow.loadURL('http://localhost:5173/cover.html');
@@ -177,32 +232,49 @@ function createCoverWindow() {
 // 显示/隐藏遮罩窗口
 function showCoverWindow(message, subMessage = '', duration = 0) {
   if (!coverWindow) return;
-  
+
   coverWindow.webContents.send('cover-show', { message, subMessage, duration });
+
+  // macOS: 只有在激活遮罩时才设置为最高层级
+  if (process.platform === 'darwin') {
+    coverWindow.setLevel('screen-saver');
+  }
+
   coverWindow.show();
   coverWindow.focus();
   isCoverModeActive = true;
 }
 
 function hideCoverWindow() {
-  if (!coverWindow) return;
-  
-  // 先退出全屏模式
+  if (!coverWindow || coverWindow.isDestroyed()) return;
+
+  // 标记为非活跃状态，允许关闭
+  isCoverModeActive = false;
+
+  // macOS: 恢复为正常层级
+  if (process.platform === 'darwin') {
+    coverWindow.setLevel('normal');
+  }
+
+  // 如果在全屏模式，先退出
   if (coverWindow.isFullScreen()) {
     coverWindow.setFullScreen(false);
-  }
-  
-  // 延迟一点再隐藏，确保退出全屏完成
-  setTimeout(() => {
+    // 延迟1秒确保全屏退出完成
+    setTimeout(() => {
+      coverWindow.hide();
+      showMainWindow();
+    }, 1000);
+  } else {
     coverWindow.hide();
-    isCoverModeActive = false;
-    
-    // 遮罩关闭后，确保主窗口可见
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.show();
-      mainWindow.focus();
-    }
-  }, 100);
+    showMainWindow();
+  }
+}
+
+function showMainWindow() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.show();
+    mainWindow.focus();
+  }
 }
 
 // 创建主窗口
@@ -328,10 +400,21 @@ function startApiServer() {
 
   console.log('Starting API server from:', apiPath);
 
-  apiServer = fork(apiPath, [], { stdio: 'inherit' });
+  apiServer = fork(apiPath, [], {
+    stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+    detached: false
+  });
 
-  apiServer.on('error', (err) => {
-    console.error('API Server error:', err);
+  // 监听服务器输出，使用 try-catch 防止 EPIPE
+  apiServer.stdout?.on('data', (data) => {
+    try {
+      process.stdout.write('[API Server] ' + data.toString().trim() + '\n');
+    } catch (e) {}
+  });
+  apiServer.stderr?.on('data', (data) => {
+    try {
+      process.stderr.write('[API Server Error] ' + data.toString().trim() + '\n');
+    } catch (e) {}
   });
 
   apiServer.on('exit', (code, signal) => {
@@ -343,8 +426,14 @@ function startApiServer() {
   });
 
   // 等待服务器启动
-  setTimeout(() => {
-    console.log('API Server started');
+  const startupTimeout = setTimeout(() => {
+    try {
+      if (apiServer && !apiServer.killed && apiServer.exitCode === null) {
+        console.log('API Server started');
+      }
+    } catch (e) {
+      // 忽略启动检查中的错误
+    }
   }, 2000);
 }
 
@@ -408,6 +497,11 @@ function setupIpc() {
 
     console.log('Panel will show at:', panelX, panelY);
 
+    // Windows: 显示前重新设置置顶层级
+    if (process.platform === 'win32') {
+      panelWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
+
     panelWindow.setPosition(panelX, panelY);
     panelWindow.show();
 
@@ -449,6 +543,12 @@ function setupIpc() {
   ipcMain.on('cover-homework', (event, homeworks) => {
     if (coverWindow) {
       coverWindow.webContents.send('cover-homework', homeworks);
+
+      // macOS: 设置为最高层级
+      if (process.platform === 'darwin') {
+        coverWindow.setLevel('screen-saver');
+      }
+
       coverWindow.show();
       coverWindow.focus();
       isCoverModeActive = true;

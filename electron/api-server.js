@@ -81,7 +81,16 @@ function validateApiKey(req, res, next) {
 // 获取学生列表
 app.get('/api/students', (req, res) => {
   const db = initDB();
-  res.json(db.students);
+  // 转换字段名和类型以匹配前端
+  const students = db.students.map(s => ({
+    id: String(s.id),
+    name: s.name,
+    groupId: s.groupId ? String(s.groupId) : null,
+    score: s.score || 0,
+    weeklyScore: s.weeklyScore || 0,
+    createdAt: s.createdAt
+  }));
+  res.json(students);
 });
 
 // 添加学生
@@ -132,19 +141,24 @@ app.delete('/api/students/:id', (req, res) => {
 // 获取小组列表
 app.get('/api/groups', (req, res) => {
   const db = initDB();
-  
+
   // 计算每个小组的总分(组内所有成员的分数之和)
   const groups = db.groups.map(group => {
-    const members = db.students.filter(s => s.groupId === group.id);
+    const groupIdStr = String(group.id);
+    const members = db.students.filter(s => String(s.groupId) === groupIdStr);
     const totalScore = members.reduce((sum, member) => sum + (member.score || 0), 0);
     const totalWeeklyScore = members.reduce((sum, member) => sum + (member.weeklyScore || 0), 0);
     return {
-      ...group,
+      id: groupIdStr,
+      name: group.name,
+      color: group.color || '#667eea',
+      lightColor: group.lightColor || '#e0e7ff',
       score: totalScore,
-      weeklyScore: totalWeeklyScore
+      weeklyScore: totalWeeklyScore,
+      memberCount: members.length
     };
   });
-  
+
   res.json(groups);
 });
 
@@ -234,7 +248,7 @@ app.post('/api/score/add', (req, res) => {
   res.json(scoreRecord);
 });
 
-// 扣分
+// 扣分（允许扣成负分）
 app.post('/api/score/subtract', (req, res) => {
   const db = initDB();
   const { studentId, groupId, value, reason } = req.body;
@@ -260,11 +274,96 @@ app.post('/api/score/subtract', (req, res) => {
     }
   }
 
-  // 小组分数动态计算,不需要存储
-
   saveDB(db);
 
   res.json(scoreRecord);
+});
+
+// 小组加分/扣分（给每个成员都加减分，允许扣成负分）
+app.post('/api/scores/group', (req, res) => {
+  const db = initDB();
+  const { group_id, score, reason } = req.body;
+
+  if (!group_id || score === undefined) {
+    return res.status(400).json({ error: '缺少必要参数' });
+  }
+
+  const isPositive = score > 0;
+  const absValue = Math.abs(score);
+
+  // 获取小组所有成员
+  const members = db.students.filter(s => s.groupId === group_id);
+
+  if (members.length === 0) {
+    return res.status(400).json({ error: '该小组没有成员' });
+  }
+
+  // 允许扣成负分，不检查每个成员的积分是否足够
+
+  // 给每个成员都加减分
+  const records = [];
+  for (const member of members) {
+    const studentIndex = db.students.findIndex(s => s.id === member.id);
+    if (studentIndex !== -1) {
+      const valueChange = isPositive ? absValue : -absValue;
+      db.students[studentIndex].score = (db.students[studentIndex].score || 0) + valueChange;
+      db.students[studentIndex].weeklyScore = (db.students[studentIndex].weeklyScore || 0) + valueChange;
+
+      const scoreRecord = {
+        id: uuidv4(),
+        studentId: member.id,
+        groupId: group_id,
+        value: valueChange,
+        reason: reason || (isPositive ? '小组加分' : '小组扣分'),
+        type: isPositive ? 'add' : 'subtract',
+        createdAt: new Date().toISOString(),
+      };
+      db.scores.push(scoreRecord);
+      records.push(scoreRecord);
+    }
+  }
+
+  saveDB(db);
+
+  res.json({ success: true, records, message: `已对${members.length}名成员${isPositive ? '加' : '扣'}${absValue}分` });
+});
+
+// 学生加分/扣分（允许扣成负分）
+app.post('/api/scores/student', (req, res) => {
+  const db = initDB();
+  const { student_id, score, reason } = req.body;
+
+  if (!student_id || score === undefined) {
+    return res.status(400).json({ error: '缺少必要参数' });
+  }
+
+  const isPositive = score > 0;
+  const absValue = Math.abs(score);
+  const studentIndex = db.students.findIndex(s => s.id === student_id);
+
+  if (studentIndex === -1) {
+    return res.status(404).json({ error: '学生不存在' });
+  }
+
+  // 允许扣成负分，不检查积分是否足够
+  const valueChange = isPositive ? absValue : -absValue;
+  db.students[studentIndex].score = (db.students[studentIndex].score || 0) + valueChange;
+  db.students[studentIndex].weeklyScore = (db.students[studentIndex].weeklyScore || 0) + valueChange;
+
+  const scoreRecord = {
+    id: uuidv4(),
+    studentId: student_id,
+    groupId: db.students[studentIndex].groupId,
+    value: valueChange,
+    reason: reason || '',
+    type: isPositive ? 'add' : 'subtract',
+    createdAt: new Date().toISOString(),
+  };
+  db.scores.push(scoreRecord);
+
+  saveDB(db);
+
+  res.json({ success: true, record: scoreRecord });
 });
 
 // 获取排行榜
@@ -272,15 +371,22 @@ app.get('/api/ranking', (req, res) => {
   const db = initDB();
   const { type = 'student', period = 'all' } = req.query;
 
-  let ranking = [];
+  let students = [...db.students].sort((a, b) => (b.score || 0) - (a.score || 0));
 
-  if (type === 'student') {
-    ranking = [...db.students].sort((a, b) => (b.score || 0) - (a.score || 0));
-  } else if (type === 'group') {
-    ranking = [...db.groups].sort((a, b) => (b.score || 0) - (a.score || 0));
-  }
+  // 计算小组分数（成员积分总和）
+  let groups = db.groups.map(group => {
+    const members = db.students.filter(s => s.groupId === group.id);
+    const totalScore = members.reduce((sum, m) => sum + (m.score || 0), 0);
+    const weeklyScore = members.reduce((sum, m) => sum + (m.weeklyScore || 0), 0);
+    return {
+      ...group,
+      score: totalScore,
+      weeklyScore: weeklyScore
+    };
+  });
+  groups = groups.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-  res.json(ranking);
+  res.json({ students, groups });
 });
 
 // 获取分数记录
@@ -353,7 +459,22 @@ app.delete('/api/rules/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// 启动服务器
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API Server running on http://localhost:${PORT}`);
+// 启动服务器（添加端口检测）
+const net = require('net');
+
+function findAvailablePort(startPort, callback) {
+  const server = net.createServer();
+  server.listen(startPort, '0.0.0.0', () => {
+    server.once('close', () => callback(startPort));
+    server.close();
+  });
+  server.on('error', () => {
+    findAvailablePort(startPort + 1, callback);
+  });
+}
+
+findAvailablePort(PORT, (availablePort) => {
+  app.listen(availablePort, '0.0.0.0', () => {
+    console.log(`API Server running on http://localhost:${availablePort}`);
+  });
 });

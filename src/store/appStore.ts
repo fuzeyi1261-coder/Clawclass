@@ -1,8 +1,57 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 
-// 从 localStorage 获取 API 地址，没有则使用默认值（远程服务器）
-const getApiBase = () => localStorage.getItem('apiBase') || 'http://43.128.40.126:3001';
+// 从 localStorage 获取 API 地址，没有则使用默认值（云服务器）
+const getApiBase = () => localStorage.getItem('apiBase') || 'http://mozi.zd2025.com:3000';
+
+// 面板专用账号
+const PANEL_ACCOUNT = { username: 'panel', password: 'panel123' };
+
+// 自动登录获取token
+async function autoLogin(): Promise<string | null> {
+  try {
+    const response = await fetch(`${getApiBase()}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(PANEL_ACCOUNT)
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('[autoLogin] Success:', data.user);
+      return data.token;
+    } else {
+      console.error('[autoLogin] Failed:', await response.text());
+      return null;
+    }
+  } catch (error) {
+    console.error('[autoLogin] Error:', error);
+    return null;
+  }
+}
+
+// 获取认证token（带自动登录）
+let cachedToken: string | null = null;
+
+const getAuthHeaders = () => {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (cachedToken) {
+    headers['Authorization'] = `Bearer ${cachedToken}`;
+  }
+  return headers;
+};
+
+// 确保已登录（如果需要）
+async function ensureAuthenticated(): Promise<boolean> {
+  if (cachedToken) return true;
+
+  cachedToken = await autoLogin();
+  if (cachedToken) {
+    localStorage.setItem('panelToken', cachedToken);
+    return true;
+  }
+  return false;
+}
 
 // 检查 API 服务器是否可用
 async function checkApiServer(): Promise<boolean> {
@@ -150,7 +199,13 @@ export const useAppStore = create<AppState>((set, get) => ({
         settingsRes.json(),
       ]);
 
-      set({ students, groups, rules, settings, loading: false });
+      // 转换字段名：API 返回 group_id，转为 groupId
+      const normalizedStudents = students.map((s: any) => ({
+        ...s,
+        groupId: s.group_id,
+      }));
+
+      set({ students: normalizedStudents, groups, rules, settings, loading: false });
     } catch (error) {
       console.error('Failed to load data:', error);
       // 使用初始化数据作为后备
@@ -245,12 +300,32 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { students, groups, addFloatingScore } = get();
 
     try {
-      const res = await fetch(`${getApiBase()}/api/score/add`, {
+      // 确保已登录
+      await ensureAuthenticated();
+
+      // 根据是否有 studentId 决定使用哪个端点
+      const endpoint = studentId ? '/api/scores/student' : '/api/scores/group';
+      const body = studentId
+        ? { student_id: studentId, score: value, reason: reason || '' }
+        : { group_id: groupId, score: value, reason: reason || '' };
+
+      const headers = getAuthHeaders();
+      console.log('[addScore] Request headers:', headers);
+
+      const res = await fetch(`${getApiBase()}${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, groupId, value, reason }),
+        headers,
+        body: JSON.stringify(body),
       });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('[addScore] API error:', errorText);
+        throw new Error(errorText);
+      }
+
       const record = await res.json();
+      console.log('[addScore] Success:', record);
 
       // 更新本地状态
       if (studentId) {
@@ -283,44 +358,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   subtractScore: async (studentId, groupId, value, reason) => {
-    const { students, groups, addFloatingScore } = get();
-
-    try {
-      const res = await fetch(`${getApiBase()}/api/score/subtract`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, groupId, value, reason }),
-      });
-      const record = await res.json();
-
-      // 更新本地状态
-      if (studentId) {
-        const student = students.find((s) => s.id === studentId);
-        if (student) {
-          addFloatingScore(-value, student.name);
-          set((state) => ({
-            students: state.students.map((s) =>
-              s.id === studentId ? { ...s, score: s.score - value, weeklyScore: s.weeklyScore - value } : s
-            ),
-          }));
-        }
-      }
-
-      if (groupId) {
-        const group = groups.find((g) => g.id === groupId);
-        if (group) {
-          set((state) => ({
-            groups: state.groups.map((g) =>
-              g.id === groupId ? { ...g, score: (g.score || 0) - value, weeklyScore: (g.weeklyScore || 0) - value } : g
-            ),
-          }));
-        }
-      }
-
-      set((state) => ({ scores: [record, ...state.scores] }));
-    } catch (error) {
-      console.error('Failed to subtract score:', error);
-    }
+    // 扣分使用负数调用 addScore
+    await get().addScore(studentId, groupId, -Math.abs(value), reason);
   },
 
   addRule: async (rule) => {

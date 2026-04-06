@@ -33,7 +33,7 @@ interface ScheduleStore {
 
 const getApiBase = () => {
   // 优先使用远程服务器
-  return 'http://43.128.40.126:3001';
+  return 'http://mozi.zd2025.com:3001';
 };
 
 export const useScheduleStore = create<ScheduleStore>((set, get) => ({

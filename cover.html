@@ -166,18 +166,21 @@
   </div>
 
   <script>
+    console.log('[Cover] 脚本开始加载');
+    
     const { ipcRenderer } = require('electron');
     
-    // API地址（生产环境）
-    const API_BASE = 'http://43.128.40.126:3001';
-    // 本地开发
-    // const API_BASE = 'http://localhost:3001';
+    // API地址
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const API_BASE = isLocalhost ? 'http://localhost:3000' : window.location.hostname + ':3000';
     
     let duration = 0;
     let timer = null;
     let endTime = null;
     let currentToken = null;
     let pollInterval = null;
+
+    console.log('[Cover] 变量初始化完成, API_BASE:', API_BASE);
 
     // 生成唯一token
     function generateToken() {
@@ -188,6 +191,7 @@
     function updateQRCode() {
       currentToken = generateToken();
       const url = `http://mozi.zd2025.com/teacher?unlock=${currentToken}`;
+      console.log('[Cover] 生成二维码, URL:', url);
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
       document.getElementById('qrcodeImg').src = qrUrl;
     }
@@ -196,15 +200,25 @@
     function startPollUnlockStatus() {
       if (pollInterval) clearInterval(pollInterval);
       
+      console.log('[Cover] 开始轮询, token:', currentToken);
+      
       pollInterval = setInterval(async () => {
-        if (!currentToken) return;
+        if (!currentToken) {
+          console.log('[Cover] token 为空, 跳过');
+          return;
+        }
         
         try {
-          const res = await fetch(`${API_BASE}/api/unlock/${currentToken}`);
+          const url = `${API_BASE}/api/unlock/${currentToken}`;
+          console.log('[Cover] 检查解锁状态:', url);
+          const res = await fetch(url);
           const data = await res.json();
+          console.log('[Cover] 解锁状态:', data);
           
           if (data.unlocked) {
             clearInterval(pollInterval);
+            pollInterval = null;
+            console.log('[Cover] 检测到已解锁, 关闭遮罩');
             showUnlockSuccess();
             
             // 延迟一点再通知关闭
@@ -213,19 +227,22 @@
             }, 1000);
           }
         } catch (e) {
-          console.error('轮询解锁状态失败:', e);
+          console.error('[Cover] 轮询错误:', e);
         }
       }, 2000); // 每2秒检查一次
     }
 
     // 显示解锁成功
     function showUnlockSuccess() {
+      console.log('[Cover] showUnlockSuccess 被调用');
       document.getElementById('coverMode').classList.add('hidden');
       document.getElementById('unlockSuccess').classList.remove('hidden');
       document.getElementById('unlockSuccess').classList.add('unlocking');
     }
 
+    console.log('[Cover] 监听 cover-show 事件');
     ipcRenderer.on('cover-show', (event, { message, subMessage, duration: dur }) => {
+      console.log('[Cover] cover-show 事件触发:', { message, subMessage, duration: dur });
       document.getElementById('coverMode').classList.remove('hidden');
       document.getElementById('unlockSuccess').classList.add('hidden');
       document.getElementById('mainMessage').textContent = message;
@@ -307,5 +324,10 @@
     // 初始化时生成二维码
     updateQRCode();
   </script>
+  
+  <!-- 备案信息 -->
+  <div style="position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); text-align: center;">
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow" style="color: rgba(255,255,255,0.4); font-size: 10px; text-decoration: none;">鄂ICP备2025093833号</a>
+  </div>
 </body>
 </html>

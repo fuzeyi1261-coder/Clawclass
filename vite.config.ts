@@ -35,6 +35,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    allowedHosts: ['mozi.zd2025.com', 'localhost', '127.0.0.1'],
     headers: {
       'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: data: ws: wss:; connect-src 'self' http: https: ws: wss:; img-src 'self' data: http: https:; style-src 'self' 'unsafe-inline' http: https:;",
     },

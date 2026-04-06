@@ -117,7 +117,9 @@ export default function ScorePanel() {
       </div>
 
       {/* 已选信息 */}
-      {selectedGroup && !selectedStudent && (
+      {selectedGroup && !selectedStudent && (() => {
+        const computedGroup = groupsWithScores.find(g => g.id === selectedGroup.id) || selectedGroup;
+        return (
         <div className="p-4 rounded-xl animate-scale-in" style={{ backgroundColor: selectedGroup.lightColor || `${selectedGroup.color}20` }}>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: selectedGroup.color }}></div>
@@ -127,9 +129,9 @@ export default function ScorePanel() {
           <div className="flex items-center gap-2 mb-3">
             <span className="text-sm text-text-secondary">本周:</span>
             <span className="text-2xl font-mono font-bold" style={{ color: selectedGroup.color }}>
-              {(selectedGroup.weeklyScore || 0) > 0 ? '+' : ''}{selectedGroup.weeklyScore || 0}
+              {((computedGroup.weeklyScore || 0) > 0 ? '+' : '') + String(computedGroup.weeklyScore || 0)}
             </span>
-            <span className="text-sm text-text-muted ml-2">累计: {selectedGroup.score || 0}</span>
+            <span className="text-sm text-text-muted ml-2">累计: {String(computedGroup.score || 0)}</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -147,7 +149,8 @@ export default function ScorePanel() {
             </button>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {selectedStudent && (
         <div className="p-4 rounded-xl animate-scale-in bg-bg-card">
@@ -163,11 +166,11 @@ export default function ScorePanel() {
           <div className="flex items-center gap-4 mb-3">
             <div>
               <span className="text-xs text-text-muted">本周</span>
-              <div className="text-xl font-mono font-bold text-primary">{selectedStudent.weeklyScore}</div>
+              <div className="text-xl font-mono font-bold text-primary">{String(selectedStudent.weeklyScore || 0)}</div>
             </div>
             <div>
               <span className="text-xs text-text-muted">累计</span>
-              <div className="text-xl font-mono font-bold text-success">{selectedStudent.score}</div>
+              <div className="text-xl font-mono font-bold text-success">{String(selectedStudent.score || 0)}</div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -227,12 +230,12 @@ export default function ScorePanel() {
                 <div className="flex justify-between text-xs mb-2">
                   <span className="text-text-secondary">本周</span>
                   <span className="font-mono font-bold" style={{ color: group.color }}>
-                    {(group.weeklyScore || 0) > 0 ? '+' : ''}{group.weeklyScore || 0}
+                    {((group.weeklyScore || 0) > 0 ? '+' : '') + String(group.weeklyScore || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-text-muted">累计</span>
-                  <span className="font-mono">{group.score || 0}</span>
+                  <span className="font-mono">{String(group.score || 0)}</span>
                 </div>
               </button>
             ))}
@@ -252,7 +255,7 @@ export default function ScorePanel() {
                 className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-elevated transition-all text-center"
               >
                 <div className="text-xs truncate">{student.name}</div>
-                <div className="text-xs font-mono text-primary mt-1">{student.weeklyScore}</div>
+                <div className="text-xs font-mono text-primary mt-1">{String(student.weeklyScore || 0)}</div>
               </button>
             ))}
           </div>
@@ -267,7 +270,7 @@ export default function ScorePanel() {
               <div className={`text-5xl font-bold mb-4 ${
                 pendingAction.type === 'add' ? 'text-success' : 'text-danger'
               }`}>
-                {pendingAction.type === 'add' ? '+' : '-'}{pendingAction.value}
+                {pendingAction.type === 'add' ? '+' : '-'}{String(pendingAction.value)}
               </div>
               <p className="text-text-primary mb-2">
                 给 <span className="font-semibold">{selectedStudent?.name || selectedGroup?.name}</span>
