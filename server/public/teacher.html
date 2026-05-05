@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>👩‍🏫 教师端 - 墨子之家</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* 头部 */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header h1 span {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .user-name {
+      font-size: 18px;
+      color: #a0aec0;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-danger {
+      background: #e53e3e;
+      color: white;
+    }
+
+    .btn-success {
+      background: #38a169;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #d69e2e;
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    /* 标签页 */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      background: rgba(255,255,255,0.05);
+      padding: 8px;
+      border-radius: 12px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 14px 20px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: #a0aec0;
+      cursor: pointer;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .tab:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    /* 面板 */
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* 卡片 */
+    .card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .card-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 网格布局 */
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 1024px) {
+      .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 表单 */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #a0aec0;
+      font-size: 14px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      color: white;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #667eea;
+      background: rgba(255,255,255,0.15);
+    }
+
+    select.form-control {
+      cursor: pointer;
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    /* 列表 */
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .list-item:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .list-item-info {
+      flex: 1;
+    }
+
+    .list-item-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .list-item-meta {
+      font-size: 12px;
+      color: #718096;
+    }
+
+    .list-item-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-subject {
+      background: rgba(102, 126, 234, 0.2);
+      color: #667eea;
+    }
+
+    .badge-due {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e11;
+    }
+
+    /* 小组/学生列表 */
+    .group-card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .group-card:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(102, 126, 234, 0.5);
+    }
+
+    .group-card.selected {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.15);
+    }
+
+    .group-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .group-score {
+      font-size: 24px;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .group-label {
+      font-size: 12px;
+      color: #718096;
+    }
+
+    /* 学生列表 */
+    .student-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .student-name {
+      font-size: 14px;
+    }
+
+    .student-score {
+      font-size: 14px;
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    /* 模态框 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #1a1a2e;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #718096;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: white;
+    }
+
+    /* 加减分按钮 */
+    .score-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .score-btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .score-btn.add {
+      background: linear-gradient(135deg, #38a169, #2f855a);
+      color: white;
+    }
+
+    .score-btn.add:hover {
+      transform: scale(1.05);
+    }
+
+    .score-btn.sub {
+      background: linear-gradient(135deg, #e53e3e, #c53030);
+      color: white;
+    }
+
+    .score-btn.sub:hover {
+      transform: scale(1.05);
+    }
+
+    /* 登录页面 */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 48px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .login-logo {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .login-title {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+      color: #a0aec0;
+      margin-bottom: 32px;
+    }
+
+    .login-form .btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+
+    .error-message {
+      background: rgba(229, 62, 62, 0.2);
+      border: 1px solid #e53e3e;
+      color: #fc8181;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    /* 上课模式 */
+    .class-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #0a0a1a;
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+    }
+
+    .class-mode.active {
+      display: flex;
+    }
+
+    .class-mode-header {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .class-mode-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .class-mode-content.centered {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .class-mode-footer {
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .class-btn {
+      padding: 20px 40px;
+      border: none;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .class-btn.random {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .class-btn.answer {
+      background: linear-gradient(135deg, #38a169, #2f855a);
+      color: white;
+    }
+
+    .class-btn.exit {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .random-result {
+      font-size: 72px;
+      text-align: center;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* 学生卡片网格 */
+    .student-card-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      padding: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .student-card-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .student-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .student-card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 14px 8px;
+      text-align: center;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+
+    .student-card:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+      border-color: rgba(102, 126, 234, 0.5);
+    }
+
+    .student-card:active {
+      transform: scale(0.95);
+    }
+
+    .student-card-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .student-card-score {
+      font-size: 14px;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+
+    .student-card.group-0 { border-left: 3px solid #e53e3e; }
+    .student-card.group-1 { border-left: 3px solid #dd6b20; }
+    .student-card.group-2 { border-left: 3px solid #d69e2e; }
+    .student-card.group-3 { border-left: 3px solid #38a169; }
+    .student-card.group-4 { border-left: 3px solid #3182ce; }
+    .student-card.group-5 { border-left: 3px solid #805ad5; }
+
+    /* 卡片内的加减分按钮 - 直接显示 */
+    .student-card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .card-btn {
+      flex: 1;
+      padding: 10px 4px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .card-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .card-btn.add {
+      background: linear-gradient(135deg, #38a169, #2f855a);
+      color: white;
+    }
+
+    .card-btn.sub {
+      background: linear-gradient(135deg, #e53e3e, #c53030);
+      color: white;
+    }
+
+    /* 课表 */
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 100px repeat(7, 1fr);
+      gap: 2px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .schedule-header {
+      background: rgba(102, 126, 234, 0.3);
+      padding: 12px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .schedule-time {
+      background: rgba(255,255,255,0.05);
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+      color: #a0aec0;
+    }
+
+    .schedule-time .period-num {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .schedule-time .time-range {
+      font-size: 11px;
+      color: #667eea;
+    }
+
+    .schedule-cell {
+      background: rgba(255,255,255,0.05);
+      padding: 12px;
+      text-align: center;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .schedule-cell:hover {
+      background: rgba(102, 126, 234, 0.2);
+    }
+
+    .schedule-cell.has-class {
+      background: rgba(102, 126, 234, 0.3);
+    }
+
+    .schedule-cell .subject-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* 晚自习标记 */
+    .schedule-cell.evening-class {
+      background: rgba(245, 158, 11, 0.3);
+      border: 1px dashed #f59e11;
+    }
+
+    .schedule-cell.evening-study {
+      background: rgba(236, 72, 153, 0.3);
+      border: 1px dashed #ec4899;
+    }
+
+    .schedule-cell.self-study {
+      background: rgba(16, 185, 129, 0.3);
+    }
+
+    /* 动画 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(56, 161, 105, 0.9);
+      color: white;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 3000;
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.error {
+      background: rgba(229, 62, 62, 0.9);
+    }
+
+    /* 弹窗样式 */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #1a202c;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #718096;
+      padding: 0;
+      line-height: 1;
+    }
+    .modal-close:hover {
+      color: #1a202c;
+    }
+    .modal-body {
+      padding: 20px;
+    }
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #4a5568;
+    }
+    .subject-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .subject-btn {
+      padding: 10px 8px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .subject-btn:hover {
+      border-color: #667eea;
+      background: #f7fafc;
+    }
+    .subject-btn.selected {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+    .subject-btn.delete-btn {
+      border-color: #fc8181;
+      color: #c53030;
+    }
+    .subject-btn.delete-btn:hover {
+      background: #fed7d7;
+      border-color: #fc8181;
+    }
+    .subject-btn.delete-btn.selected {
+      background: #c53030;
+      color: white;
+    }
+    .time-inputs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .time-inputs input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .time-inputs input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .time-hint {
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: #718096;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #5a67d8;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #4a5568;
+    }
+    .btn-secondary:hover {
+      background: #cbd5e0;
+    }
+    
+    /* 备案信息 */
+    .beian-footer {
+      text-align: center;
+      padding: 16px;
+      background: #f7fafc;
+      border-top: 1px solid #e2e8f0;
+    }
+    .beian-footer a {
+      color: #718096;
+      font-size: 12px;
+      text-decoration: none;
+    }
+    .beian-footer a:hover {
+      color: #667eea;
+    }
+
+    /* 随机抽人样式 */
+    .random-pick-container {
+      margin-bottom: 16px;
+    }
+
+    .random-pick-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .random-count-select {
+      padding: 10px 16px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .random-count-select:hover {
+      border-color: #667eea;
+    }
+
+    .random-count-select option {
+      background: #1a1a2e;
+      color: white;
+    }
+
+    /* 抽取结果弹窗 */
+    .picked-result {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(26, 26, 46, 0.98);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      z-index: 3000;
+      min-width: 300px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+    }
+
+    .picked-title {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .picked-names {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .picked-item {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 16px 24px;
+      border-radius: 16px;
+      animation: popIn 0.3s ease;
+    }
+
+    .picked-item-name {
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .picked-item-id {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+    }
+
+    .picked-item-group {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 批量操作样式 */
+    .batch-select-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(102, 126, 234, 0.2);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: white;
+    }
+
+    .batch-select-bar.hidden {
+      display: none;
+    }
+
+    .batch-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .batch-btn.add {
+      background: linear-gradient(135deg, #38a169, #2f855a);
+      color: white;
+    }
+
+    .batch-btn.add:hover {
+      transform: scale(1.05);
+    }
+
+    .batch-btn.subtract {
+      background: linear-gradient(135deg, #e53e3e, #c53030);
+      color: white;
+    }
+
+    .batch-btn.subtract:hover {
+      transform: scale(1.05);
+    }
+
+    .batch-btn.cancel {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .batch-btn.cancel:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* 学生卡片可选中状态 */
+    .student-card.selectable {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .student-card.selectable:hover {
+      border-color: rgba(102, 126, 234, 0.8);
+      background: rgba(102, 126, 234, 0.1);
+    }
+
+    .student-card.selected {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.2);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    }
+
+    /* 低分预警 */
+    .low-score {
+      color: #fc8181 !important;
+    }
+
+    .low-score-bg {
+      background: rgba(252, 130, 130, 0.15) !important;
+    }
+
+    /* 学号显示 */
+    .student-id {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 登录页面 -->
+  <div id="loginPage" class="login-container">
+    <div class="login-box fade-in">
+      <div class="login-logo">🏆</div>
+      <h1 class="login-title">墨子之家</h1>
+      <p class="login-subtitle">教师端</p>
+      
+      <form class="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <select id="username" class="form-control" required>
+            <option value="">请选择科目</option>
+            <option value="语文">语文</option>
+            <option value="数学">数学</option>
+            <option value="英语">英语</option>
+            <option value="物理">物理</option>
+            <option value="道法">道法</option>
+            <option value="历史">历史</option>
+            <option value="地理">地理</option>
+            <option value="生物">生物</option>
+            <option value="美术">美术</option>
+            <option value="体育">体育</option>
+            <option value="心理">心理</option>
+            <option value="信息">信息</option>
+            <option value="音乐">音乐</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <input type="password" id="password" class="form-control" placeholder="请输入密码" required>
+        </div>
+        <button type="submit" class="btn btn-primary">登录</button>
+      </form>
+      
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <p style="color: #a0aec0; font-size: 13px; margin-bottom: 10px;">下载桌面客户端</p>
+        <a href="installer.exe" download="班级积分系统.exe" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+          💻 下载安装包
+        </a>
+      </div>
+      
+      <div id="loginError" class="error-message"></div>
+    </div>
+  </div>
+
+  <!-- 主页面 -->
+  <div id="mainPage" class="container" style="display: none;">
+    <!-- 头部 -->
+    <div class="header">
+      <h1>🏆 <span>墨子之家</span> 教师端</h1>
+      <div class="user-info">
+        <span class="user-name" id="currentUser"></span>
+        <button class="btn btn-secondary" onclick="handleLogout()">退出登录</button>
+      </div>
+    </div>
+
+    <!-- 标签页 -->
+    <div class="tabs">
+      <button class="tab active" data-tab="homework">📝 布置作业</button>
+      <button class="tab" data-tab="score">⚡ 加减分</button>
+      <button class="tab" data-tab="class">🎯 上课模式</button>
+      <button class="tab" data-tab="schedule">📅 课表管理</button>
+    </div>
+
+    <!-- 布置作业面板 -->
+    <div id="homeworkPanel" class="panel active">
+      <div class="card">
+        <div class="card-title">📝 布置作业 <span id="hwSubjectBadge" style="font-size: 14px; font-weight: normal; color: #667eea;"></span></div>
+        <form onsubmit="handleAddHomework(event)">
+          <div class="form-group">
+            <label>作业内容</label>
+            <textarea id="hwContent" class="form-control" placeholder="直接输入作业内容..." style="min-height: 120px;" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">发布作业</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 作业列表</div>
+        <div id="homeworkList" class="list"></div>
+      </div>
+    </div>
+
+    <!-- 加减分面板 -->
+    <div id="scorePanel" class="panel">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">👥 小组积分</div>
+          <div id="groupList" class="grid grid-2"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">👤 学生积分</div>
+          <div style="max-height: 400px; overflow-y: auto;">
+            <div id="studentList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 上课模式面板 -->
+    <div id="classPanel" class="panel">
+      <div class="card">
+        <div class="card-title">🎯 快捷操作</div>
+        <div class="random-pick-container">
+          <div class="random-pick-row">
+            <select id="randomCount" class="random-count-select">
+              <option value="1">抽1人</option>
+              <option value="2">抽2人</option>
+              <option value="3">抽3人</option>
+              <option value="4">抽4人</option>
+              <option value="5">抽5人</option>
+              <option value="6">抽6人</option>
+            </select>
+            <button class="btn btn-primary" onclick="randomPickAll()" style="flex: 1;">🎲 随机抽人</button>
+          </div>
+        </div>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;">
+          <button class="btn btn-success" onclick="startAnswer()">✋ 抢答模式</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚡ 快速加减分 
+          <button id="batchModeBtn" onclick="toggleBatchMode()" style="padding: 6px 12px; font-size: 12px; background: rgba(102,126,234,0.3); color: white; border: 1px solid rgba(102,126,234,0.5); border-radius: 6px; cursor: pointer; margin-left: 10px;">批量操作</button>
+        </div>
+        <div id="batchSelectBar" class="batch-select-bar hidden">
+          <span id="batchSelectCount">已选0人</span>
+          <button class="batch-btn add" onclick="showBatchModal('add')">+加分</button>
+          <button class="batch-btn subtract" onclick="showBatchModal('subtract')">-扣分</button>
+          <button class="batch-btn cancel" onclick="clearBatchSelection()">清空</button>
+        </div>
+        <div id="quickScoreList" class="list"></div>
+      </div>
+    </div>
+
+    <!-- 课表管理面板 -->
+    <div id="schedulePanel" class="panel">
+      <div id="scheduleManage">
+        <div class="card">
+          <div class="card-title">📅 课表设置 <span id="scheduleNotice" style="font-size: 12px; color: #718096; font-weight: normal;"></span></div>
+          
+          <!-- 节数设置（仅数学老师） -->
+          <div id="periodSettings" style="margin-bottom: 20px; display: none;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <span>每天</span>
+              <select id="periodCount" class="form-control" style="width: 80px;" onchange="onPeriodCountChange()">
+                <option value="6">6节</option>
+                <option value="7">7节</option>
+                <option value="8">8节</option>
+                <option value="9">9节</option>
+                <option value="10">10节</option>
+                <option value="11">11节</option>
+                <option value="12">12节</option>
+              </select>
+              <span>课</span>
+            </div>
+          </div>
+          
+          <div id="scheduleGrid" class="schedule-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- 上课模式全屏 -->
+  <div id="classMode" class="class-mode">
+    <div class="class-mode-header">
+      <h2>🎯 上课模式</h2>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-sm btn-secondary" onclick="loadClassModeStudents()">🔄 刷新</button>
+        <button class="btn btn-sm btn-secondary" onclick="exitClassMode()">退出</button>
+      </div>
+    </div>
+    <div class="class-mode-content" id="classModeContent">
+      <!-- 小组选择区 -->
+      <div id="groupSelectArea" style="margin-bottom: 20px;">
+        <p style="color: #a0aec0; margin-bottom: 12px;">👥 请先选择小组</p>
+        <div id="classModeGroupList" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;"></div>
+      </div>
+      
+      <!-- 选中的小组信息 -->
+      <div id="selectedGroupInfo" style="display: none; margin-bottom: 20px; padding: 16px; background: rgba(102, 126, 234, 0.2); border-radius: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div id="selectedGroupColor" style="width: 16px; height: 16px; border-radius: 50%;"></div>
+          <span id="selectedGroupName" style="font-size: 20px; font-weight: 600;"></span>
+          <span id="selectedGroupCount" style="color: #a0aec0; font-size: 14px;"></span>
+        </div>
+      </div>
+      
+      <!-- 组成员选择区 -->
+      <div id="memberSelectArea" style="display: none;">
+        <p style="color: #a0aec0; margin-bottom: 12px;">👤 点击学生进行加分</p>
+        <div id="classModeMemberList" class="student-card-grid"></div>
+      </div>
+    </div>
+    <!-- 随机抽人结果浮层 -->
+    <div id="randomOverlay" style="display:none; position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.75); z-index:10; justify-content:center; align-items:center; flex-direction:column;">
+      <div id="randomResult" style="text-align:center;"></div>
+      <div style="margin-top:30px; display:flex; gap:16px; justify-content:center;">
+        <button class="card-btn add" id="randomAdd3" onclick="classQuickScoreFromOverlay(this, 3)">+3</button>
+        <button class="card-btn add" id="randomAdd5" onclick="classQuickScoreFromOverlay(this, 5)">+5</button>
+        <button class="card-btn sub" id="randomSub2" onclick="classQuickScoreFromOverlay(this, -2)">-2</button>
+      </div>
+      <button class="btn btn-secondary" style="margin-top:30px;" onclick="closeRandomOverlay()">返回</button>
+    </div>
+    <div class="class-mode-footer">
+      <button class="class-btn random" onclick="doRandom()">🎲 随机抽人</button>
+      <button class="class-btn answer" onclick="doAnswer()">✋ 抢答</button>
+      <button class="class-btn exit" onclick="exitClassMode()">退出</button>
+    </div>
+  </div>
+
+  <!-- 加减分模态框 -->
+  <div id="scoreModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="scoreModalTitle">加减分</h3>
+        <button class="modal-close" onclick="closeScoreModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>原因（可选）</label>
+        <input type="text" id="scoreReason" class="form-control" placeholder="例如：回答问题正确">
+      </div>
+      <div class="score-buttons">
+        <button class="score-btn add" onclick="addScore(3)">+3</button>
+        <button class="score-btn sub" onclick="addScore(-2)">-2</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 抽取结果弹窗 -->
+  <div id="pickedResultModal" class="picked-result hidden">
+    <div class="picked-title">🎲 被抽中的同学是</div>
+    <div class="picked-names" id="pickedNames"></div>
+  </div>
+
+  <!-- 批量加减分弹窗 -->
+  <div id="batchModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="batchModalTitle">批量加分</h3>
+        <button class="modal-close" onclick="closeBatchModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="batchModalInfo">已选择 <span id="batchSelectedCount">0</span> 名学生</p>
+        <div class="form-group">
+          <label>分值：</label>
+          <input type="number" id="batchPoints" class="form-control" value="3" min="1" max="100">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeBatchModal()">取消</button>
+        <button class="btn btn-primary" onclick="doBatchScore()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- 课表编辑弹窗 -->
+  <div id="scheduleModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">编辑课表</h3>
+        <button class="modal-close" onclick="closeScheduleModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>选择科目</label>
+          <div class="subject-buttons">
+            <button type="button" class="subject-btn" data-subject="语文">语文</button>
+            <button type="button" class="subject-btn" data-subject="数学">数学</button>
+            <button type="button" class="subject-btn" data-subject="英语">英语</button>
+            <button type="button" class="subject-btn" data-subject="物理">物理</button>
+            <button type="button" class="subject-btn" data-subject="道法">道法</button>
+            <button type="button" class="subject-btn" data-subject="历史">历史</button>
+            <button type="button" class="subject-btn" data-subject="地理">地理</button>
+            <button type="button" class="subject-btn" data-subject="生物">生物</button>
+            <button type="button" class="subject-btn" data-subject="美术">美术</button>
+            <button type="button" class="subject-btn" data-subject="体育">体育</button>
+            <button type="button" class="subject-btn" data-subject="心理">心理</button>
+            <button type="button" class="subject-btn" data-subject="信息">信息</button>
+            <button type="button" class="subject-btn" data-subject="音乐">音乐</button>
+            <button type="button" class="subject-btn" data-subject="晚自习上课">晚自习上课</button>
+            <button type="button" class="subject-btn" data-subject="晚自习">晚自习</button>
+            <button type="button" class="subject-btn" data-subject="自习">自习</button>
+            <button type="button" class="subject-btn" data-subject="早读">早读</button>
+            <button type="button" class="subject-btn delete-btn" data-subject="">删除</button>
+          </div>
+          <input type="hidden" id="selectedSubject">
+        </div>
+        <div class="form-group" id="timeGroup" style="display: none;">
+          <label>上课时间</label>
+          <div class="time-inputs">
+            <input type="time" id="startTime" placeholder="开始时间" value="08:00">
+            <span>至</span>
+            <input type="time" id="endTime" placeholder="结束时间" value="08:45">
+          </div>
+          <p class="time-hint">提示：可参考上方默认时间模板设置</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeScheduleModal()">取消</button>
+        <button class="btn btn-primary" id="saveScheduleBtn" onclick="saveScheduleFromModal()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 配置
+    // API地址：本地开发用3000端口，生产环境访问3000端口
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const API_BASE = isLocalhost ? 'http://localhost:3000' : 'http://' + window.location.hostname + ':3000';
+
+    // 状态
+    let token = localStorage.getItem('token');
+    let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+    let selectedTarget = null;
+    let selectedType = null;
+    let unlockToken = null; // 解锁token
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 检测URL中的解锁token
+      unlockToken = getUrlParam('unlock');
+      
+      if (token && currentUser) {
+        showMainPage();
+      } else {
+        showLoginPage();
+        
+        // 如果有unlock参数，自动聚焦密码框并显示提示
+        if (unlockToken) {
+          setTimeout(() => {
+            showToast('📱 请登录以解锁屏幕', false);
+          }, 500);
+        }
+      }
+      
+      // 标签页切换
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById(tab.dataset.tab + 'Panel').classList.add('active');
+          
+          if (tab.dataset.tab === 'score') {
+            loadScores();
+          } else if (tab.dataset.tab === 'schedule') {
+            loadSchedule();
+          } else if (tab.dataset.tab === 'homework') {
+            loadHomeworks();
+          }
+        });
+      });
+    });
+
+    // 显示登录页
+    function showLoginPage() {
+      document.getElementById('loginPage').style.display = 'flex';
+      document.getElementById('mainPage').style.display = 'none';
+    }
+
+    // 显示主页
+    function showMainPage() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
+      document.getElementById('currentUser').textContent = '👩‍🏫 ' + currentUser.username;
+      
+      // 显示当前老师科目
+      document.getElementById('hwSubjectBadge').textContent = '(' + currentUser.username + ')';
+      
+      loadHomeworks();
+      loadScores();
+      loadSchedule();
+
+      // 如果有解锁token，显示解锁按钮
+      if (unlockToken) {
+        showUnlockButton();
+      }
+    }
+
+    // 登录
+    async function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('loginError');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorEl.textContent = data.error || '登录失败';
+          errorEl.classList.add('show');
+          return;
+        }
+
+        token = data.token;
+        currentUser = data.user;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        
+        errorEl.classList.remove('show');
+        showMainPage();
+        showToast('登录成功');
+        
+        // 登录成功后检查是否需要解锁
+        if (unlockToken) {
+          setTimeout(() => {
+            showUnlockButton();
+          }, 500);
+        }
+      } catch (error) {
+        errorEl.textContent = '网络错误，请检查服务器连接';
+        errorEl.classList.add('show');
+      }
+    }
+
+    // 退出登录
+    function handleLogout() {
+      token = null;
+      currentUser = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      showLoginPage();
+      showToast('已退出登录');
+    }
+
+    // Toast 提示
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.toggle('error', isError);
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // 解锁相关
+
+    function getUrlParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    async function tryUnlock() {
+      if (!unlockToken || !currentUser) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/unlock`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: unlockToken,
+            username: currentUser.username
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showToast('🔓 解锁成功！');
+          // 清空URL参数
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (error) {
+        console.error('解锁失败:', error);
+      }
+    }
+
+    function showUnlockButton() {
+      // 添加解锁提示和按钮
+      const unlockDiv = document.createElement('div');
+      unlockDiv.id = 'unlockBanner';
+      unlockDiv.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 20px;
+        text-align: center;
+        font-size: 16px;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      `;
+      unlockDiv.innerHTML = `
+        <span>📱 检测到解锁请求，请登录后点击解锁按钮</span>
+        <button id="unlockBtn" style="
+          background: white;
+          color: #667eea;
+          border: none;
+          padding: 8px 20px;
+          border-radius: 20px;
+          cursor: pointer;
+          font-weight: bold;
+        ">🔓 解锁屏幕</button>
+      `;
+      document.body.appendChild(unlockDiv);
+
+      document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+    }
+
+    // API 请求封装
+    async function apiRequest(url, options = {}) {
+      const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      console.log('[apiRequest]', options.method || 'GET', url, 'headers:', headers);
+
+      const res = await fetch(`${API_BASE}${url}`, {
+        ...options,
+        headers
+      });
+
+      console.log('[apiRequest] Response status:', res.status);
+
+      if (res.status === 401) {
+        handleLogout();
+        throw new Error('401: 登录已过期');
+      }
+
+      if (res.status === 403) {
+        const data = await res.json();
+        throw new Error('403: ' + (data.error || '权限不足'));
+      }
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || '请求失败');
+      }
+
+      return res.json();
+    }
+
+    // 加载作业列表
+    async function loadHomeworks() {
+      try {
+        const homeworks = await apiRequest('/api/homeworks');
+        const list = document.getElementById('homeworkList');
+        
+        if (!homeworks.length) {
+          list.innerHTML = '<p style="color: #718096; text-align: center; padding: 20px;">暂无作业</p>';
+          return;
+        }
+
+        list.innerHTML = homeworks.map(hw => `
+          <div class="list-item fade-in" style="flex-direction: column; align-items: flex-start;">
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px;">
+              <div class="list-item-title">${hw.title}</div>
+              <div class="list-item-actions">
+                <button class="btn btn-danger btn-sm" onclick="deleteHomework(${hw.id})">删除</button>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <span class="badge badge-subject">${hw.subject}</span>
+              ${hw.due_date ? `<span class="badge badge-due">截止: ${hw.due_date}</span>` : ''}
+            </div>
+            ${hw.content ? `<div style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; color: #a0aec0; line-height: 1.6;">${hw.content}</div>` : ''}
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('加载作业失败:', error);
+      }
+    }
+
+    // 添加作业
+    async function handleAddHomework(e) {
+      e.preventDefault();
+      const content = document.getElementById('hwContent').value;
+      const subject = currentUser?.username || '';
+
+      if (!subject) {
+        showToast('未登录，无法发布作业', true);
+        return;
+      }
+
+      try {
+        await apiRequest('/api/homeworks', {
+          method: 'POST',
+          body: JSON.stringify({ subject, content })
+        });
+        
+        document.getElementById('hwContent').value = '';
+        
+        loadHomeworks();
+        showToast('作业发布成功');
+      } catch (error) {
+        showToast('发布失败: ' + error.message, true);
+      }
+    }
+
+    // 删除作业
+    async function deleteHomework(id) {
+      if (!confirm('确定要删除这个作业吗？')) return;
+      
+      try {
+        await apiRequest(`/api/homeworks/${id}`, { method: 'DELETE' });
+        loadHomeworks();
+        showToast('作业已删除');
+      } catch (error) {
+        showToast('删除失败', true);
+      }
+    }
+
+    // 加载积分数据
+    async function loadScores() {
+      try {
+        const data = await apiRequest('/api/scores/ranking');
+        
+        // 渲染小组
+        const groupList = document.getElementById('groupList');
+        groupList.innerHTML = data.groups.map(g => `
+          <div class="group-card ${selectedTarget === g.id && selectedType === 'group' ? 'selected' : ''}" 
+               onclick="selectTarget(${g.id}, 'group')">
+            <div class="group-name">${g.name}</div>
+            <div class="group-score">${g.total_score}</div>
+            <div class="group-label">${g.member_count} 人</div>
+          </div>
+        `).join('');
+
+        // 渲染学生
+        const studentList = document.getElementById('studentList');
+        studentList.innerHTML = data.students.map(s => `
+          <div class="student-item">
+            <div>
+              <div class="student-name">${s.name}</div>
+              <div style="font-size: 12px; color: #718096;">${s.group_name || '未分组'}</div>
+            </div>
+            <div class="student-score">${s.total_score} 分</div>
+          </div>
+        `).join('');
+
+        // 加载快捷加减分列表
+        loadQuickScoreList();
+      } catch (error) {
+        console.error('加载积分失败:', error);
+      }
+    }
+
+    // 加载快捷加减分列表
+    async function loadQuickScoreList() {
+      try {
+        const data = await apiRequest('/api/scores/ranking');
+        const list = document.getElementById('quickScoreList');
+        
+        // 显示前10名学生
+        list.innerHTML = data.students.slice(0, 10).map(s => `
+          <div class="list-item" style="cursor: pointer;" onclick="selectStudentQuick(${s.id})">
+            <div class="list-item-info">
+              <div class="list-item-title">${s.name}</div>
+              <div class="list-item-meta">${s.group_name || '未分组'} · ${s.total_score} 分</div>
+            </div>
+            <div class="score-buttons" style="margin: 0; gap: 8px;">
+              <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); quickScore(${s.id}, 'student', 3)">+3</button>
+              <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); quickScore(${s.id}, 'student', -2)">-2</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('加载快捷列表失败:', error);
+      }
+    }
+
+    // 选择目标
+    function selectTarget(id, type) {
+      selectedTarget = id;
+      selectedType = type;
+      
+      const data = apiRequest('/api/scores/ranking');
+      
+      let title = '';
+      if (type === 'group') {
+        data.then(d => {
+          const g = d.groups.find(x => x.id === id);
+          title = g ? g.name : '';
+          document.getElementById('scoreModalTitle').textContent = title + ' 加减分';
+        });
+      } else {
+        data.then(d => {
+          const s = d.students.find(x => x.id === id);
+          title = s ? s.name : '';
+          document.getElementById('scoreModalTitle').textContent = title + ' 加减分';
+        });
+      }
+      
+      document.getElementById('scoreModal').classList.add('active');
+      loadScores();
+    }
+
+    // 选择学生快捷
+    function selectStudentQuick(id) {
+      selectedTarget = id;
+      selectedType = 'student';
+      document.getElementById('scoreModalTitle').textContent = '学生加减分';
+      document.getElementById('scoreModal').classList.add('active');
+    }
+
+    // 加减分
+    async function addScore(score) {
+      if (!selectedTarget) {
+        showToast('请先选择学生或小组', true);
+        return;
+      }
+
+      const reason = document.getElementById('scoreReason').value;
+
+      try {
+        if (selectedType === 'group') {
+          await apiRequest('/api/scores/group', {
+            method: 'POST',
+            body: JSON.stringify({ group_id: selectedTarget, score, reason })
+          });
+        } else {
+          await apiRequest('/api/scores/student', {
+            method: 'POST',
+            body: JSON.stringify({ student_id: selectedTarget, score, reason })
+          });
+        }
+
+        document.getElementById('scoreReason').value = '';
+        closeScoreModal();
+        loadScores();
+        showToast(score > 0 ? `+${score} 分成功` : `${score} 分成功`);
+      } catch (error) {
+        showToast('操作失败', true);
+      }
+    }
+
+    // 快速加减分
+    async function quickScore(id, type, score) {
+      try {
+        if (type === 'group') {
+          await apiRequest('/api/scores/group', {
+            method: 'POST',
+            body: JSON.stringify({ group_id: id, score })
+          });
+        } else {
+          await apiRequest('/api/scores/student', {
+            method: 'POST',
+            body: JSON.stringify({ student_id: id, score })
+          });
+        }
+        loadScores();
+        showToast(score > 0 ? `+${score} 分成功` : `${score} 分成功`);
+      } catch (error) {
+        showToast('操作失败', true);
+      }
+    }
+
+    // 关闭模态框
+    function closeScoreModal() {
+      document.getElementById('scoreModal').classList.remove('active');
+      selectedTarget = null;
+      selectedType = null;
+    }
+
+    // 上课模式
+    let classModeSelectedGroup = null;
+    let classModeStudents = [];
+    let classModeGroups = [];
+
+    function startRandom() {
+      document.getElementById('classMode').classList.add('active');
+      loadClassModeStudents();
+    }
+
+    function startAnswer() {
+      document.getElementById('classMode').classList.add('active');
+      loadClassModeStudents();
+    }
+
+    function exitClassMode() {
+      document.getElementById('classMode').classList.remove('active');
+      classModeSelectedGroup = null;
+    }
+
+    // 上课模式 - 加载数据
+    async function loadClassModeStudents() {
+      try {
+        const [students, scores] = await Promise.all([
+          apiRequest('/api/students'),
+          apiRequest('/api/scores/ranking')
+        ]);
+
+        console.log('[上课模式] 学生数:', students.length, '分数数据:', scores);
+
+        // 创建学生分数映射
+        const scoreMap = {};
+        scores.students.forEach(s => {
+          scoreMap[s.id] = s.total_score || 0;
+        });
+
+        // 创建小组索引映射
+        const groupIndexMap = {};
+        scores.groups.forEach((g, idx) => {
+          groupIndexMap[g.id] = idx;
+        });
+
+        classModeGroups = scores.groups;
+        classModeStudents = students.map(s => ({
+          ...s,
+          score: scoreMap[s.id] || 0,
+          groupIndex: groupIndexMap[s.group_id] ?? 0
+        }));
+
+        // 渲染小组选择区
+        renderGroupSelect();
+        
+        // 重置状态
+        classModeSelectedGroup = null;
+        document.getElementById('selectedGroupInfo').style.display = 'none';
+        document.getElementById('memberSelectArea').style.display = 'none';
+      } catch (error) {
+        console.error('加载学生失败:', error);
+      }
+    }
+
+    // 渲染小组选择区
+    function renderGroupSelect() {
+      const groupList = document.getElementById('classModeGroupList');
+      const colors = ['#e53e3e', '#dd6b20', '#d69e2e', '#38a169', '#3182ce', '#805ad5'];
+      
+      groupList.innerHTML = classModeGroups.map((g, idx) => {
+        const memberCount = classModeStudents.filter(s => s.group_id === g.id).length;
+        return `
+          <div class="group-card ${classModeSelectedGroup?.id === g.id ? 'selected' : ''}" 
+               onclick="selectClassModeGroup(${g.id})"
+               style="border-left: 4px solid ${colors[idx % 6]};">
+            <div class="group-name">${g.name}</div>
+            <div class="group-score">${g.total_score || 0}</div>
+            <div class="group-label">${memberCount} 人</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 选择小组
+    function selectClassModeGroup(groupId) {
+      classModeSelectedGroup = classModeGroups.find(g => g.id === groupId);
+      const colors = ['#e53e3e', '#dd6b20', '#d69e2e', '#38a169', '#3182ce', '#805ad5'];
+      const groupIndex = classModeGroups.findIndex(g => g.id === groupId);
+      
+      // 显示小组信息
+      const groupInfo = document.getElementById('selectedGroupInfo');
+      groupInfo.style.display = 'block';
+      document.getElementById('selectedGroupColor').style.backgroundColor = colors[groupIndex % 6];
+      document.getElementById('selectedGroupName').textContent = classModeSelectedGroup.name;
+      const memberCount = classModeStudents.filter(s => s.group_id === groupId).length;
+      document.getElementById('selectedGroupCount').textContent = `(${memberCount}人)`;
+      
+      // 显示成员选择区
+      const memberArea = document.getElementById('memberSelectArea');
+      memberArea.style.display = 'block';
+      
+      // 渲染成员
+      renderGroupMembers(groupId);
+      
+      // 更新小组选中状态
+      renderGroupSelect();
+    }
+
+    // 渲染组成员
+    function renderGroupMembers(groupId) {
+      const memberList = document.getElementById('classModeMemberList');
+      const groupMembers = classModeStudents.filter(s => s.group_id === groupId);
+      const groupIndex = classModeGroups.findIndex(g => g.id === groupId);
+
+      // 计算平均分用于低分预警
+      const totalScore = classModeStudents.reduce((sum, s) => sum + (s.score || 0), 0);
+      const avgScore = classModeStudents.length > 0 ? totalScore / classModeStudents.length : 0;
+      
+      memberList.innerHTML = groupMembers.map(s => {
+        const isLowScore = (s.score || 0) < avgScore;
+        return `
+        <div class="student-card group-${groupIndex % 6} selectable ${isLowScore ? 'low-score-bg' : ''} ${batchSelectedStudents.includes(s.id) ? 'selected' : ''}"
+             data-student-id="${s.id}"
+             onclick="toggleBatchSelect(${s.id})">
+          <div class="student-card-name ${isLowScore ? 'low-score' : ''}">${s.name}</div>
+          ${s.student_id ? `<div class="student-id">${s.student_id}</div>` : ''}
+          <div class="student-card-score">${s.score} 分</div>
+          <div class="student-card-actions">
+            <button class="card-btn add" onclick="event.stopPropagation(); classQuickScore(${s.id}, 3)">+3</button>
+            <button class="card-btn add" onclick="event.stopPropagation(); classQuickScore(${s.id}, 5)">+5</button>
+            <button class="card-btn sub" onclick="event.stopPropagation(); classQuickScore(${s.id}, -2)">-2</button>
+          </div>
+        </div>
+      `;
+      }).join('');
+    }
+
+    // 随机抽人 - 修复：使用浮层而非覆盖内容
+    async function doRandom() {
+      if (!classModeSelectedGroup) {
+        showToast('请先选择小组', true);
+        return;
+      }
+      try {
+        const groupMembers = classModeStudents.filter(s => s.group_id === classModeSelectedGroup.id);
+        if (groupMembers.length === 0) {
+          showToast('该小组暂无成员', true);
+          return;
+        }
+        const randomStudent = groupMembers[Math.floor(Math.random() * groupMembers.length)];
+
+        // 在浮层中显示结果（不覆盖原有内容）
+        document.getElementById('randomResult').innerHTML = `
+          <div style="font-size: 24px; margin-bottom: 20px; color: #a0aec0;">🎲 被抽中的同学是</div>
+          <div style="font-size: 72px; color: #667eea; animation: pulse 1s infinite; font-weight:700;">${randomStudent.name}</div>
+        `;
+
+        // 绑定加分按钮事件
+        document.getElementById('randomAdd3').onclick = () => { classQuickScore(randomStudent.id, 3); };
+        document.getElementById('randomAdd5').onclick = () => { classQuickScore(randomStudent.id, 5); };
+        document.getElementById('randomSub2').onclick = () => { classQuickScore(randomStudent.id, -2); };
+
+        // 显示浮层
+        document.getElementById('randomOverlay').style.display = 'flex';
+      } catch (error) {
+        showToast('操作失败', true);
+      }
+    }
+
+    function closeRandomOverlay() {
+      document.getElementById('randomOverlay').style.display = 'none';
+    }
+
+    // 抢答模式
+    function doAnswer() {
+      showToast('抢答模式开发中...', false);
+    }
+
+    // 随机抽人算法 - 按用户思路优化
+    // 思路：先抽组，再用奇偶判断决定是否换组；确定组后，再抽人，用奇偶判断决定是否换人
+    function optimizedRandomPick(allStudents, count) {
+      if (allStudents.length === 0) return [];
+      count = Math.min(count, allStudents.length);
+
+      // 获取所有小组
+      const groups = {};
+      allStudents.forEach(s => {
+        const gid = s.group_id || 0;
+        if (!groups[gid]) groups[gid] = [];
+        groups[gid].push(s);
+      });
+      const groupIds = Object.keys(groups).map(Number);
+
+      if (groupIds.length === 0) return [];
+
+      const result = [];
+
+      for (let i = 0; i < count; i++) {
+        // 第一次抽组
+        let selectedGroupId = groupIds[Math.floor(Math.random() * groupIds.length)];
+
+        // 用奇偶判断决定是否换组（最多尝试10次，避免无限循环）
+        for (let attempt = 0; attempt < 10; attempt++) {
+          const rand = Math.floor(Math.random() * 1000); // 生成0-999的随机数
+          if (rand % 2 === 1) {
+            // 奇数，确定这个组
+            break;
+          } else {
+            // 偶数，换一个组
+            const otherGroups = groupIds.filter(gid => gid !== selectedGroupId);
+            if (otherGroups.length > 0) {
+              selectedGroupId = otherGroups[Math.floor(Math.random() * otherGroups.length)];
+            }
+          }
+        }
+
+        // 确定组之后，从中抽一个人
+        const group = groups[selectedGroupId];
+        if (!group || group.length === 0) continue;
+
+        let selectedStudent = group[Math.floor(Math.random() * group.length)];
+
+        // 用奇偶判断决定是否换人（最多尝试10次）
+        for (let attempt = 0; attempt < 10; attempt++) {
+          const rand = Math.floor(Math.random() * 1000);
+          if (rand % 2 === 1) {
+            // 奇数，确定这个人
+            break;
+          } else {
+            // 偶数，换一个人
+            const otherStudents = group.filter(s => s.id !== selectedStudent.id);
+            if (otherStudents.length > 0) {
+              selectedStudent = otherStudents[Math.floor(Math.random() * otherStudents.length)];
+            }
+          }
+        }
+
+        // 避免重复抽取同一个学生
+        const alreadyPicked = result.find(s => s.id === selectedStudent.id);
+        if (!alreadyPicked) {
+          result.push(selectedStudent);
+        }
+
+        // 从组中移除已抽取的学生（避免同组重复）
+        groups[selectedGroupId] = group.filter(s => s.id !== selectedStudent.id);
+        if (groups[selectedGroupId].length === 0) {
+          delete groups[selectedGroupId];
+          groupIds.splice(groupIds.indexOf(selectedGroupId), 1);
+        }
+      }
+
+      return result;
+    }
+
+    // 随机抽人（从所有学生中抽取，支持多抽）
+    async function randomPickAll() {
+      try {
+        const data = await apiRequest('/api/scores/ranking');
+        const allStudents = data.students || [];
+
+        if (allStudents.length === 0) {
+          showToast('还没有学生数据', true);
+          return;
+        }
+
+        const count = parseInt(document.getElementById('randomCount').value) || 1;
+        const picked = optimizedRandomPick(allStudents, count);
+
+        if (picked.length === 0) {
+          showToast('抽取失败', true);
+          return;
+        }
+
+        console.log('Random pick:', picked.map(s => s.name), 'count:', count);
+
+        // 显示抽取结果
+        showPickedResult(picked);
+      } catch (error) {
+        console.error('随机抽人失败:', error);
+        showToast('抽取失败', true);
+      }
+    }
+
+    // 显示抽取结果
+    function showPickedResult(pickedStudents) {
+      const modal = document.getElementById('pickedResultModal');
+      const namesContainer = document.getElementById('pickedNames');
+
+      // 获取小组信息
+      const groups = classModeGroups || [];
+
+      namesContainer.innerHTML = pickedStudents.map(s => {
+        const group = groups.find(g => g.id === s.group_id);
+        return `
+          <div class="picked-item">
+            <div class="picked-item-name">${s.name}</div>
+            ${s.student_id ? `<div class="picked-item-id">${s.student_id}</div>` : ''}
+            <div class="picked-item-group">${group ? group.name : ''}</div>
+          </div>
+        `;
+      }).join('');
+
+      modal.classList.remove('hidden');
+
+      // 点击任意位置关闭
+      const closeHandler = (e) => {
+        if (!e.target.closest('.picked-item')) {
+          modal.classList.add('hidden');
+          document.removeEventListener('click', closeHandler);
+        }
+      };
+        setTimeout(() => document.addEventListener('click', closeHandler), 100);
+    }
+
+    // 批量操作相关
+    let batchSelectedStudents = [];
+    let batchOperationType = 'add';
+    let isBatchMode = false;  // 批量模式开关
+
+    // 切换批量操作模式
+    function toggleBatchMode() {
+      isBatchMode = !isBatchMode;
+      const btn = document.getElementById('batchModeBtn');
+      
+      if (isBatchMode) {
+        btn.textContent = '退出批量';
+        btn.style.background = 'rgba(231,76,60,0.3)';
+        btn.style.borderColor = 'rgba(231,76,60,0.8)';
+        showToast('批量操作模式已开启，点击学生卡片进行选择', 'success');
+      } else {
+        btn.textContent = '批量操作';
+        btn.style.background = 'rgba(102,126,234,0.3)';
+        btn.style.borderColor = 'rgba(102,126,234,0.5)';
+        clearBatchSelection();
+        showToast('已退出批量操作模式', 'info');
+      }
+      
+      // 重新渲染快速加减分列表，更新卡片点击事件
+      loadScores();
+    }
+
+    // 切换学生选中状态
+    function toggleBatchSelect(studentId) {
+      if (!isBatchMode) return;  // 非批量模式不处理
+      
+      const idx = batchSelectedStudents.indexOf(studentId);
+      if (idx > -1) {
+        batchSelectedStudents.splice(idx, 1);
+      } else {
+        batchSelectedStudents.push(studentId);
+      }
+
+      // 更新选中状态
+      const card = document.querySelector(`[data-student-id="${studentId}"]`);
+      if (card) {
+        card.classList.toggle('selected');
+      }
+
+      updateBatchSelectBar();
+    }
+
+    // 显示批量操作弹窗
+    function showBatchModal(type) {
+      if (batchSelectedStudents.length === 0) {
+        showToast('请先选择学生', true);
+        return;
+      }
+      batchOperationType = type;
+      document.getElementById('batchModalTitle').textContent = type === 'add' ? '批量加分' : '批量扣分';
+      document.getElementById('batchSelectedCount').textContent = batchSelectedStudents.length;
+      document.getElementById('batchModal').classList.add('active');
+      document.getElementById('batchPoints').value = 3;
+    }
+
+    // 关闭批量操作弹窗
+    function closeBatchModal() {
+      document.getElementById('batchModal').classList.remove('active');
+    }
+
+    // 执行批量加减分
+    async function doBatchScore() {
+      const points = parseInt(document.getElementById('batchPoints').value) || 3;
+      const actualPoints = batchOperationType === 'add' ? points : -points;
+
+      try {
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const studentId of batchSelectedStudents) {
+          try {
+            await apiRequest('/api/scores/student', {
+              method: 'POST',
+              body: JSON.stringify({ student_id: studentId, score: actualPoints })
+            });
+            successCount++;
+          } catch (error) {
+            failCount++;
+          }
+        }
+
+        if (failCount > 0) {
+          showToast(`部分操作失败：成功 ${successCount} 人，失败 ${failCount} 人`, true);
+        } else {
+          showToast(`${batchOperationType === 'add' ? '加分' : '扣分'}成功！共 ${successCount} 人`);
+        }
+
+        closeBatchModal();
+        clearBatchSelection();
+        await loadScores();
+      } catch (error) {
+        showToast('操作失败: ' + error.message, true);
+      }
+    }
+
+    // 清空批量选择
+    function clearBatchSelection() {
+      batchSelectedStudents = [];
+      updateBatchSelectBar();
+      // 移除所有选中状态
+      document.querySelectorAll('.student-card.selected').forEach(el => {
+        el.classList.remove('selected');
+      });
+    }
+
+    // 更新批量选择栏
+    function updateBatchSelectBar() {
+      const bar = document.getElementById('batchSelectBar');
+      const countSpan = document.getElementById('batchSelectCount');
+      if (bar) {
+        countSpan.textContent = `已选${batchSelectedStudents.length}人`;
+        if (batchSelectedStudents.length > 0) {
+          bar.classList.remove('hidden');
+        } else {
+          bar.classList.add('hidden');
+        }
+      }
+    }
+
+    // 上课模式快捷加减分
+    async function classQuickScore(studentId, score) {
+      try {
+        await apiRequest('/api/scores/student', {
+          method: 'POST',
+          body: JSON.stringify({ student_id: studentId, score })
+        });
+        showToast(score > 0 ? `+${score} 分成功` : `${score} 分成功`);
+        
+        // 重新加载数据并刷新显示
+        await loadClassModeStudents();
+        
+        // 恢复选中状态
+        if (classModeSelectedGroup) {
+          selectClassModeGroup(classModeSelectedGroup.id);
+        }
+      } catch (error) {
+        showToast('操作失败', true);
+      }
+    }
+
+    // 课表管理
+    async function loadSchedule() {
+      const isMathTeacher = currentUser && currentUser.username === '数学';
+      console.log('[loadSchedule] currentUser:', currentUser, 'isMathTeacher:', isMathTeacher);
+      document.getElementById('scheduleNotice').textContent = isMathTeacher ? '(仅数学老师可编辑)' : '(仅查看)';
+
+      if (!currentUser) {
+        showToast('请先登录', true);
+        return;
+      }
+      
+      // 仅数学老师显示节数设置
+      document.getElementById('periodSettings').style.display = isMathTeacher ? 'block' : 'none';
+
+      try {
+        const schedule = await apiRequest('/api/schedule');
+        const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+        const periodCount = parseInt(document.getElementById('periodCount').value) || 8;
+        const periods = Array.from({length: periodCount}, (_, i) => i + 1);
+
+        // 默认时间模板（可编辑）
+        const defaultTimes = {
+          1: '08:00-08:45',
+          2: '08:55-09:40',
+          3: '10:00-10:45',
+          4: '10:55-11:40',
+          5: '14:00-14:45',
+          6: '14:55-15:40',
+          7: '15:50-16:35',
+          8: '16:45-17:30',
+          9: '19:00-19:45',
+          10: '19:55-20:40',
+          11: '20:50-21:35',
+          12: '21:40-22:25',
+        };
+
+        let html = `
+          <div class="schedule-header"></div>
+          ${weekdays.map(d => `<div class="schedule-header">${d}</div>`).join('')}
+        `;
+
+        periods.forEach(period => {
+          html += `
+            <div class="schedule-time">
+              <div class="period-num">第${period}节</div>
+            </div>
+          `;
+          
+          weekdays.forEach((_, dayIndex) => {
+            const lesson = schedule.find(s => s.weekday === dayIndex && s.period === period);
+            const hasClass = lesson ? 'has-class' : '';
+            const isEveningClass = lesson && lesson.subject === '晚自习上课' ? 'evening-class' : '';
+            const isEveningStudy = lesson && lesson.subject === '晚自习' ? 'evening-study' : '';
+            const isSelfStudy = lesson && lesson.subject === '自习' ? 'self-study' : '';
+            const content = lesson ? lesson.subject : '';
+            const startTime = lesson && lesson.start_time ? lesson.start_time : '';
+            const endTime = lesson && lesson.end_time ? lesson.end_time : '';
+            const onclick = isMathTeacher ? `onclick="editSchedule(${dayIndex}, ${period}, '${content}', '${startTime}', '${endTime}')"` : '';
+            html += `<div class="schedule-cell ${hasClass} ${isEveningClass} ${isEveningStudy} ${isSelfStudy}" ${onclick}><span class="subject-name">${content}</span></div>`;
+          });
+        });
+
+        // 直接设置样式到容器，而不是嵌套 div
+        const gridEl = document.getElementById('scheduleGrid');
+        gridEl.innerHTML = html;
+        gridEl.style.display = 'grid';
+        gridEl.style.gridTemplateColumns = '100px repeat(7, 1fr)';
+        gridEl.style.gap = '2px';
+        gridEl.style.background = 'rgba(255,255,255,0.1)';
+        gridEl.style.borderRadius = '12px';
+        gridEl.style.overflow = 'hidden';
+      } catch (error) {
+        console.error('加载课表失败:', error);
+      }
+    }
+
+    // 节数变化时重新加载课表
+    function onPeriodCountChange() {
+      loadSchedule();
+    }
+
+    // 课表编辑弹窗相关变量
+    let currentEditWeekday = 0;
+    let currentEditPeriod = 0;
+    let currentEditCurrentSubject = '';
+    let currentEditCurrentStartTime = '';
+    let currentEditCurrentEndTime = '';
+
+    async function editSchedule(weekday, period, currentSubject, currentStartTime, currentEndTime) {
+      // 保存当前编辑信息
+      currentEditWeekday = weekday;
+      currentEditPeriod = period;
+      currentEditCurrentSubject = currentSubject;
+      currentEditCurrentStartTime = currentStartTime;
+      currentEditCurrentEndTime = currentEndTime;
+
+      // 设置弹窗标题
+      const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+      document.getElementById('modalTitle').textContent = `第${period}节 - ${dayNames[weekday]}`;
+
+      // 重置选择
+      document.getElementById('selectedSubject').value = '';
+      document.querySelectorAll('.subject-btn').forEach(btn => btn.classList.remove('selected'));
+
+      // 如果有当前科目，选中它
+      if (currentSubject) {
+        const btn = document.querySelector(`.subject-btn[data-subject="${currentSubject}"]`);
+        if (btn) btn.classList.add('selected');
+        document.getElementById('selectedSubject').value = currentSubject;
+      }
+
+      // 设置时间
+      document.getElementById('startTime').value = currentStartTime || '08:00';
+      document.getElementById('endTime').value = currentEndTime || '08:45';
+
+      // 显示/隐藏时间输入
+      document.getElementById('timeGroup').style.display = currentSubject ? 'block' : 'none';
+
+      // 显示弹窗
+      document.getElementById('scheduleModal').style.display = 'flex';
+    }
+
+    // 点击科目按钮
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('subject-btn')) {
+        // 移除其他选中状态
+        document.querySelectorAll('.subject-btn').forEach(btn => btn.classList.remove('selected'));
+        // 选中当前
+        e.target.classList.add('selected');
+        document.getElementById('selectedSubject').value = e.target.dataset.subject;
+
+        // 如果选择了科目，显示时间输入
+        if (e.target.dataset.subject) {
+          document.getElementById('timeGroup').style.display = 'block';
+        } else {
+          // 选择了"删除"，隐藏时间输入
+          document.getElementById('timeGroup').style.display = 'none';
+        }
+      }
+    });
+
+    // 关闭弹窗
+    function closeScheduleModal() {
+      document.getElementById('scheduleModal').style.display = 'none';
+    }
+
+    // 保存课表（从弹窗）
+    async function saveScheduleFromModal() {
+      const subject = document.getElementById('selectedSubject').value;
+      const startTime = document.getElementById('startTime').value;
+      const endTime = document.getElementById('endTime').value;
+
+      // 如果选择删除
+      if (!subject) {
+        try {
+          const schedule = await apiRequest('/api/schedule');
+          const item = schedule.find(s => s.weekday === currentEditWeekday && s.period === currentEditPeriod);
+          if (item) {
+            await apiRequest(`/api/schedule/${item.id}`, { method: 'DELETE' });
+          }
+          closeScheduleModal();
+          loadSchedule();
+          showToast('已删除');
+        } catch (error) {
+          showToast('删除失败', true);
+        }
+        return;
+      }
+
+      // 保存课表
+      try {
+        console.log('[saveSchedule] 保存课表:', { 
+          weekday: currentEditWeekday, 
+          period: currentEditPeriod, 
+          subject, 
+          startTime, 
+          endTime 
+        });
+        
+        const bodyData = {
+          weekday: currentEditWeekday,
+          period: currentEditPeriod,
+          subject,
+          start_time: startTime || null,
+          end_time: endTime || null
+        };
+        console.log('[saveSchedule] 发送数据:', bodyData);
+        
+        await apiRequest('/api/schedule', {
+          method: 'POST',
+          body: JSON.stringify(bodyData)
+        });
+        
+        closeScheduleModal();
+        loadSchedule();
+        showToast('课表已更新');
+      } catch (error) {
+        console.error('[editSchedule] Error:', error);
+        let errorMsg = '更新失败';
+        if (error.message && error.message.includes('403')) {
+          errorMsg = '只有数学老师可以编辑课表';
+        } else if (error.message && error.message.includes('401')) {
+          errorMsg = '登录已过期，请重新登录';
+        } else {
+          errorMsg = '更新失败: ' + error.message;
+        }
+        showToast(errorMsg, true);
+      }
+    }
+
+    // 点击弹窗背景关闭
+    document.getElementById('scheduleModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeScheduleModal();
+      }
+    });
+  </script>
+  
+  <!-- 备案信息 -->
+  <div class="beian-footer">
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow">鄂ICP备2025093833号</a>
+  </div>
+</body>
+</html>
