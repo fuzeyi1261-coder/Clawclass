@@ -1,0 +1,60 @@
+name: Build Windows x86
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # 允许手动触发
+  workflow_dispatch:
+
+jobs:
+  build-windows-x86:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        architecture: 'x86'  # 关键：指定x86架构
+        
+    - name: Verify architecture
+      run: |
+        node -e "console.log('Architecture:', process.arch); console.log('Platform:', process.platform);"
+        
+    - name: Install dependencies
+      working-directory: ./server
+      run: npm install
+      
+    - name: Install Electron Builder
+      run: npm install -g electron-builder
+      
+    - name: Install dependencies (for building)
+      working-directory: .
+      run: npm install || true
+      
+    - name: Build Electron app for Windows x86
+      working-directory: .
+      run: |
+        npm install electron --save-dev || true
+        npx electron-builder --win --ia32
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: List output files
+      run: |
+        dir dist || true
+        dir release || true
+        
+    - name: Upload Windows x86 installer
+      uses: actions/upload-artifact@v3
+      with:
+        name: Clawclass-Windows-x86
+        path: |
+          dist/*.exe
+          release/*.exe
+        retention-days: 30
